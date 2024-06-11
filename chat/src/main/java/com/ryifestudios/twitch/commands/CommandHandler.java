@@ -9,8 +9,6 @@ import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.lang.reflect.ParameterizedType;
 import java.util.*;
 
 public class CommandHandler {
@@ -64,7 +62,7 @@ public class CommandHandler {
 
             Method basisMethod = tempMethods.getFirst();
 
-            // If there's more than 1 element in the list, log a warn
+            // If there's more than 1 element in the list, log warn
             if(tempMethods.size() > 1){
                 logger.warn("You have two Methods with {} annotated - using the first one {}", BasisCommand.class.getName(), basisMethod.getName());
             }
