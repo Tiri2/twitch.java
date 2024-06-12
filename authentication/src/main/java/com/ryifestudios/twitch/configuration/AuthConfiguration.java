@@ -1,9 +1,7 @@
 package com.ryifestudios.twitch.configuration;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.ryifestudios.twitch.scopes.ChatScopesBuilder;
+import lombok.*;
 import lombok.experimental.Accessors;
 
 import java.util.ArrayList;
@@ -12,12 +10,12 @@ import java.util.ArrayList;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Accessors(fluent = true)
 public class AuthConfiguration {
 
     private String clientId;
     private String redirectUri;
-    private ArrayList<String> scopes;
-
+    private String scopes;
 
 }
