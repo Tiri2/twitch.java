@@ -9,7 +9,13 @@ import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
 import java.lang.reflect.Method;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.lang.StringTemplate.STR;
 
 public class CommandHandler {
 
@@ -17,17 +23,17 @@ public class CommandHandler {
 
     private final HashMap<String, Command> commands;
 
-    public CommandHandler(String prefix) {
+    public CommandHandler() {
         commands = new HashMap<>();
 
-        findAllCommands(prefix);
+        findAllCommands();
     }
 
     /**
      * Find all Commands by using the {@link com.ryifestudios.twitch.annotations.commands.Command} Annotation
      */
-    private void findAllCommands(String prefix){
-        Reflections typesAnnotatedRef = new Reflections(new ConfigurationBuilder().setUrls(ClasspathHelper.forPackage(prefix)).setScanners(Scanners.TypesAnnotated));
+    private void findAllCommands(){
+        Reflections typesAnnotatedRef = new Reflections(new ConfigurationBuilder().setUrls(ClasspathHelper.forJavaClassPath()).setScanners(Scanners.TypesAnnotated));
 //        Reflections methodsAnnotatedRef = new Reflections(new ConfigurationBuilder().setUrls(ClasspathHelper.forPackage(prefix)).setScanners(Scanners.MethodsAnnotated));
 
         Set<Class<?>> cmds = typesAnnotatedRef.getTypesAnnotatedWith(com.ryifestudios.twitch.annotations.commands.Command.class);
@@ -64,14 +70,22 @@ public class CommandHandler {
 
             // If there's more than 1 element in the list, log warn
             if(tempMethods.size() > 1){
-                logger.warn("You have two Methods with {} annotated - using the first one {}", BasisCommand.class.getName(), basisMethod.getName());
+                logger.warn("You have two Methods with {} annotated - using {}", BasisCommand.class.getName(), basisMethod.toGenericString());
             }
+
+            // TODO: maybe thrown a exception for logger.error things
 
             // Check if the params are higher than 1 TODO: improve params
             if(basisMethod.getParameterCount() < 1){
-                logger.error("Method {} don't have enough parameters. Is CommandContext missing?", STR."\{basisMethod.getClass().getName()}.\{basisMethod.getName()}");
+                logger.error("Method {} don't have enough parameters. Is CommandContext missing?", basisMethod.toGenericString());
                 System.out.println("error - 0 params");
-                return; // foreach instead of continue
+                return;
+            }
+
+            // Check if the first parameter is the class CommandContext
+            if(basisMethod.getParameters()[0].getType() != CommandContext.class){
+                logger.error("Method {} don't have the Class {} as it's first parameter!", basisMethod.toGenericString(), CommandContext.class.getTypeName());
+                return;
             }
 
             // Then finally set the basis method in cmd
@@ -84,6 +98,7 @@ public class CommandHandler {
 
         });
     }
+
 
     public HashMap<String, Command> commands(){
         return commands;
