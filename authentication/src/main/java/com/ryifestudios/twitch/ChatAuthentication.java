@@ -1,11 +1,12 @@
 package com.ryifestudios.twitch;
 
 import com.ryifestudios.twitch.configuration.AuthConfiguration;
+import com.ryifestudios.twitch.scopes.ChatScopesBuilder;
 import lombok.experimental.Accessors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
+import static java.lang.StringTemplate.STR;
 
 @Accessors(fluent = true)
 public class ChatAuthentication {
@@ -22,9 +23,10 @@ public class ChatAuthentication {
 
 
     public void requestAuthorization(){
-        String url = STR."https://id.twitch.tv/oauth2/authorize?response_type=code&client_id=\{config.clientId()}&redirect_uri=\{config.redirectUri()}&scope=\{replaceArrayListToQueryParams(config.scopes())}\n";
 
+        String scopes = new ChatScopesBuilder().withChatRead().withChatEdit().withChannelModerate().build();
 
+        String url = STR."https://id.twitch.tv/oauth2/authorize?response_type=code&client_id=\{config.clientId()}&redirect_uri=\{config.redirectUri()}&scope=\{scopes}\n";
 
         logger.warn("Please authenticate your app with your twitch account. use {}", url);
         System.out.println(url);
@@ -37,15 +39,6 @@ public class ChatAuthentication {
 
     public void useRefreshTokenToGetANewAccessToken(){
 
-    }
-
-
-    private String replaceArrayListToQueryParams(ArrayList<String> p){
-        String s = "";
-
-        //TODO: replace the array list p to a query param string to use it above
-
-        return s;
     }
 
 }
