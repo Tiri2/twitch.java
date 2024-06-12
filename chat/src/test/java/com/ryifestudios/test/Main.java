@@ -15,8 +15,13 @@ public class Main {
         AuthConfiguration authConfiguration = AuthConfiguration.builder()
                 .clientId("r1mln6qcd2m5xvgx4u6wlvgyy33c5u")
                 .redirectUri("http://localhost:1000/callback")
+                .clientSecret("3dcwh6gub60althyaxs1x3dkisogg0") // 12.6 15:40
+                .clientName("ryifebot")
                 .scopes(new ChatScopesBuilder().withChatRead().withChatEdit().withChannelModerate().build()).build();
-        Chat chat = new Chat(configuration, new ChatAuthentication(authConfiguration, 1000));
+
+        ChatAuthentication chatAuth = new ChatAuthentication(authConfiguration, 1000);
+
+        Chat chat = new Chat(configuration, chatAuth);
 
 
     }

@@ -1,7 +1,7 @@
 package com.ryifestudios.twitch;
 
 import com.ryifestudios.twitch.configuration.AuthConfiguration;
-import com.ryifestudios.twitch.scopes.ChatScopesBuilder;
+import com.ryifestudios.twitch.tasks.RequestAccessToken;
 import com.ryifestudios.twitch.web.handlers.CallbackHandler;
 import com.ryifestudios.twitch.web.responses.AuthorizationResponse;
 import io.javalin.Javalin;
@@ -11,6 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Timer;
+import java.util.concurrent.TimeUnit;
 
 import static java.lang.StringTemplate.STR;
 
@@ -19,17 +20,19 @@ public class ChatAuthentication {
 
     Logger logger = LogManager.getLogger("Credentials");
 
-    private final AuthConfiguration config;
+    @Getter
+    private final AuthConfiguration authConfig;
 
     @Getter
     private AuthorizationResponse response;
 
-    private Timer timer;
+    private final Timer timer;
 
     public ChatAuthentication(AuthConfiguration authConfiguration, int webPort) {
-        this.config = authConfiguration;
+        this.authConfig = authConfiguration;
 
         response = new AuthorizationResponse();
+        timer = new Timer();
 
         start(webPort);
     }
@@ -41,15 +44,13 @@ public class ChatAuthentication {
         // TODO: wenn response.IsPending false ist - dann hol den token
         // Einen timer benutzen zum checken wenn pending false ist
 
-        while (!response.isPending()){
-            System.out.println("PENDING false!");
-        }
+        timer.scheduleAtFixedRate(new RequestAccessToken(response, authConfig), 0, TimeUnit.SECONDS.toMillis(5));
 
     }
 
     public void requestAuthorization(int port){
 
-        String url = STR."https://id.twitch.tv/oauth2/authorize?response_type=code&client_id=\{config.clientId()}&redirect_uri=\{config.redirectUri()}&scope=\{config.scopes()}\n";
+        String url = STR."https://id.twitch.tv/oauth2/authorize?response_type=code&client_id=\{authConfig.clientId()}&redirect_uri=\{authConfig.redirectUri()}&scope=\{authConfig.scopes()}\n";
 
         logger.warn("Please authenticate your app with your twitch account. use {}", url);
         System.out.println(url);
