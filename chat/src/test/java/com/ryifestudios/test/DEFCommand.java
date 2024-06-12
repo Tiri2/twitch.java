@@ -1,15 +1,15 @@
-package com.ryifestudios.test.commands;
+package com.ryifestudios.test;
 
 import com.ryifestudios.twitch.annotations.commands.BasisCommand;
 import com.ryifestudios.twitch.annotations.commands.Command;
 import com.ryifestudios.twitch.commands.CommandContext;
 
-@Command(name = "test", description = "fortnite")
-public class TestCommand {
+@Command(name = "def", description = "fortnite")
+public class DEFCommand {
 
     @BasisCommand()
-    public void handle(CommandContext ctx, String data){
-        System.out.println("called");
+    public void test(CommandContext ctx){
+
     }
 
 }
