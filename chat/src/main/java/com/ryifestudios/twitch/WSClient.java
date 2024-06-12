@@ -27,7 +27,9 @@ public class WSClient extends org.java_websocket.client.WebSocketClient {
         this.auth = authentication;
 
         channel = configuration.getChannel();
+    }
 
+    public void connectClient() {
         // Connect to the websocket server
         this.connect();
     }
@@ -38,8 +40,8 @@ public class WSClient extends org.java_websocket.client.WebSocketClient {
         System.out.println("Websocket Client connected");
 
 
-//        this.send(STR."PASS oauth:\{auth}");
-//        this.send(STR."NICK \{auth.data().getAccountName()}");
+        this.send(STR."PASS oauth:\{auth.response().accessToken().getAccessToken()}");
+        this.send(STR."NICK \{auth.authConfig().clientName()}");
 
     }
 

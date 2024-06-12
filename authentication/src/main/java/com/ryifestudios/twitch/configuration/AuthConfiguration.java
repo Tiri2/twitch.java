@@ -1,10 +1,7 @@
 package com.ryifestudios.twitch.configuration;
 
-import com.ryifestudios.twitch.scopes.ChatScopesBuilder;
 import lombok.*;
 import lombok.experimental.Accessors;
-
-import java.util.ArrayList;
 
 @Getter
 @Setter
@@ -15,6 +12,8 @@ import java.util.ArrayList;
 public class AuthConfiguration {
 
     private String clientId;
+    private String clientName;
+    private String clientSecret;
     private String redirectUri;
     private String scopes;
 
