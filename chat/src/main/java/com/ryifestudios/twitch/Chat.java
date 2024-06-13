@@ -45,7 +45,7 @@ public class Chat {
         });
 
         timer = new Timer();
-        client = new WSClient(config, authentication);
+        client = new WSClient(config, authentication, commandHandler);
 
     }
 

@@ -1,5 +1,6 @@
 package com.ryifestudios.twitch;
 
+import com.ryifestudios.twitch.commands.CommandHandler;
 import com.ryifestudios.twitch.configuration.Configuration;
 import com.ryifestudios.twitch.parser.IRCMessageParser;
 import org.apache.logging.log4j.LogManager;
@@ -17,11 +18,14 @@ public class WSClient extends org.java_websocket.client.WebSocketClient {
 
     private final ChatAuthentication auth;
 
+    private final CommandHandler commandHandler;
 
-    public WSClient(Configuration configuration, ChatAuthentication authentication) {
+
+    public WSClient(Configuration configuration, ChatAuthentication authentication, CommandHandler cmdHandler) {
         super(URI.create("ws://irc-ws.chat.twitch.tv:80"));
         this.config = configuration;
         this.auth = authentication;
+        this.commandHandler = cmdHandler;
     }
 
     public void connectClient() {
@@ -43,58 +47,53 @@ public class WSClient extends org.java_websocket.client.WebSocketClient {
     @Override
     public void onMessage(String ircMessage) {
         System.out.println(STR."ircMessage: \{ircMessage}");
-        if (ircMessage.contains("utf8")) {
-            String rawIrcMessage = ircMessage.trim();
-            System.out.println(STR."Message received (\{new Date()}): '\{rawIrcMessage}'\n");
 
-            String[] messages = rawIrcMessage.split("\r\n"); // The IRC message may contain one or more messages.
-            for (String message : messages) {
-                IRCMessageParser.ParsedMessage parsedMessage = IRCMessageParser.parseMessage(message);
+        String rawIrcMessage = ircMessage.trim();
+        System.out.println(STR."Message received (\{new Date()}): '\{rawIrcMessage}'\n");
 
-                if (parsedMessage != null) {
-                    switch (parsedMessage.command.command) {
-                        case "PRIVMSG":
-                            if ("move".equals(parsedMessage.command.botCommand)) {
+        String[] messages = rawIrcMessage.split("\r\n"); // The IRC message may contain one or more messages.
+        for (String message : messages) {
+            IRCMessageParser.ParsedMessage parsedMessage = IRCMessageParser.parseMessage(message);
 
-
-                            } else if ("moveoff".equals(parsedMessage.command.botCommand)) {
-
-                            }
-                            break;
-                        case "PING":
-                            this.send(STR."PONG \{parsedMessage.parameters}");
-                            break;
-                        case "001":
-                            this.send(STR."JOIN \{config.getChannel()}");
-                            break;
-                        case "JOIN":
+            if (parsedMessage != null) {
+                switch (parsedMessage.command.command) {
+                    case "PRIVMSG":
+                        commandHandler.execute(parsedMessage.command.botCommand, "", null);
+                        break;
+                    case "PING":
+                        this.send(STR."PONG \{parsedMessage.parameters}");
+                        break;
+                    case "001":
+                        this.send(STR."JOIN \{config.getChannel()}");
+                        break;
+                    case "JOIN":
 //                            this.send("PRIVMSG " + config.getChannel() + " :" + moveMessage);
-                            this.send(STR."PRIVMSG \{config.getChannel()} :Channel joint");
+                        this.send(STR."PRIVMSG \{config.getChannel()} :Channel joint");
 
-                            break;
-                        case "PART":
-                            System.out.println("The channel must have banned (/ban) the bot.");
-                            this.close();
-                            break;
-                        case "NOTICE":
-                            if ("Login authentication failed".equals(parsedMessage.parameters)) {
-                                System.out.println(STR."Authentication failed; left \{config.getChannel()}");
+                        break;
+                    case "PART":
+                        System.out.println("The channel must have banned (/ban) the bot.");
+                        this.close();
+                        break;
+                    case "NOTICE":
+                        if ("Login authentication failed".equals(parsedMessage.parameters)) {
+                            System.out.println(STR."Authentication failed; left \{config.getChannel()}");
 
-                                this.send(STR."PART \{config.getChannel()}");
+                            this.send(STR."PART \{config.getChannel()}");
 
-                            } else if ("You don’t have permission to perform that action".equals(parsedMessage.parameters)) {
-                                System.out.println(STR."No permission. Check if the access token is still valid. Left \{config.getChannel()}");
-                                send(STR."PART \{config.getChannel()}");
+                        } else if ("You don’t have permission to perform that action".equals(parsedMessage.parameters)) {
+                            System.out.println(STR."No permission. Check if the access token is still valid. Left \{config.getChannel()}");
+                            send(STR."PART \{config.getChannel()}");
 
-                            }
-                            break;
-                        default:
-                            // Ignore all other IRC messages.
-                            break;
-                    }
+                        }
+                        break;
+                    default:
+                        // Ignore all other IRC messages.
+                        break;
                 }
             }
         }
+
     }
 
     @Override
