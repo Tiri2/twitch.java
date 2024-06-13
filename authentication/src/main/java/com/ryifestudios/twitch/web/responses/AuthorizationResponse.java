@@ -4,25 +4,26 @@ import com.ryifestudios.twitch.models.AccessToken;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.function.Consumer;
+
 
 /**
  *
  */
-public class AuthorizationResponse {
+@Setter
+public class AuthorizationResponse{
 
     /**
      * Variable for checking if we got the code or not
      */
     @Getter
-    @Setter
     private boolean pending;
 
-    @Setter
     private AccessToken accessToken;
 
-    @Setter
     @Getter
     private String authorizedCode;
+
 
     public AuthorizationResponse() {
         pending = true;
@@ -31,5 +32,4 @@ public class AuthorizationResponse {
     public AccessToken accessToken(){
         return accessToken;
     }
-
 }

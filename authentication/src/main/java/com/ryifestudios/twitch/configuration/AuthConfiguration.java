@@ -17,4 +17,6 @@ public class AuthConfiguration {
     private String redirectUri;
     private String scopes;
 
+    private int webPort;
+
 }
