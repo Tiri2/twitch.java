@@ -18,15 +18,10 @@ public class WSClient extends org.java_websocket.client.WebSocketClient {
     private final ChatAuthentication auth;
 
 
-    private final String channel;
-
-
     public WSClient(Configuration configuration, ChatAuthentication authentication) {
         super(URI.create("ws://irc-ws.chat.twitch.tv:80"));
         this.config = configuration;
         this.auth = authentication;
-
-        channel = configuration.getChannel();
     }
 
     public void connectClient() {
@@ -39,16 +34,16 @@ public class WSClient extends org.java_websocket.client.WebSocketClient {
 
         System.out.println("Websocket Client connected");
 
-
         this.send(STR."PASS oauth:\{auth.response().accessToken().getAccessToken()}");
         this.send(STR."NICK \{auth.authConfig().clientName()}");
+        this.send(STR."JOIN #\{config.getChannel()}");
 
     }
 
     @Override
     public void onMessage(String ircMessage) {
-        System.out.println(ircMessage);
-        if ("utf8".equals(ircMessage)) {
+        System.out.println(STR."ircMessage: \{ircMessage}");
+        if (ircMessage.contains("utf8")) {
             String rawIrcMessage = ircMessage.trim();
             System.out.println(STR."Message received (\{new Date()}): '\{rawIrcMessage}'\n");
 
@@ -70,11 +65,11 @@ public class WSClient extends org.java_websocket.client.WebSocketClient {
                             this.send(STR."PONG \{parsedMessage.parameters}");
                             break;
                         case "001":
-                            this.send(STR."JOIN \{channel}");
+                            this.send(STR."JOIN \{config.getChannel()}");
                             break;
                         case "JOIN":
-//                            this.send("PRIVMSG " + channel + " :" + moveMessage);
-                            this.send("PRIVMSG " + channel + " :Channel joint");
+//                            this.send("PRIVMSG " + config.getChannel() + " :" + moveMessage);
+                            this.send(STR."PRIVMSG \{config.getChannel()} :Channel joint");
 
                             break;
                         case "PART":
@@ -83,13 +78,13 @@ public class WSClient extends org.java_websocket.client.WebSocketClient {
                             break;
                         case "NOTICE":
                             if ("Login authentication failed".equals(parsedMessage.parameters)) {
-                                System.out.println(STR."Authentication failed; left \{channel}");
+                                System.out.println(STR."Authentication failed; left \{config.getChannel()}");
 
-                                this.send(STR."PART \{channel}");
+                                this.send(STR."PART \{config.getChannel()}");
 
                             } else if ("You don’t have permission to perform that action".equals(parsedMessage.parameters)) {
-                                System.out.println(STR."No permission. Check if the access token is still valid. Left \{channel}");
-                                send(STR."PART \{channel}");
+                                System.out.println(STR."No permission. Check if the access token is still valid. Left \{config.getChannel()}");
+                                send(STR."PART \{config.getChannel()}");
 
                             }
                             break;

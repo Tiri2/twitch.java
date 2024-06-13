@@ -10,7 +10,8 @@ public class Main {
 
     public static void main(String[] args) {
         Configuration configuration = new Configuration();
-        configuration.setChannel("tiri2");
+
+        configuration.setChannel("tiri2"); // tiri2 id : no
 
         AuthConfiguration authConfiguration = AuthConfiguration.builder()
                 .clientId("r1mln6qcd2m5xvgx4u6wlvgyy33c5u")
