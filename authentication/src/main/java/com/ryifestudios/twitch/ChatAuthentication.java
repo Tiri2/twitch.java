@@ -1,17 +1,27 @@
 package com.ryifestudios.twitch;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ryifestudios.twitch.configuration.AuthConfiguration;
+import com.ryifestudios.twitch.models.AccessToken;
+import com.ryifestudios.twitch.storage.TokenStorageManager;
+import com.ryifestudios.twitch.storage.StorageItem;
+import com.ryifestudios.twitch.storage.StorageManager;
 import com.ryifestudios.twitch.web.handlers.CallbackHandler;
 import com.ryifestudios.twitch.web.responses.AuthorizationResponse;
 import io.javalin.Javalin;
 import lombok.Getter;
 import lombok.experimental.Accessors;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.IOException;
 import java.util.Timer;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 import static java.lang.StringTemplate.STR;
 
@@ -26,6 +36,8 @@ public class ChatAuthentication {
     @Getter
     private AuthorizationResponse response;
 
+    private TokenStorageManager tokenStorage;
+
     private final Timer timer;
 
     public ChatAuthentication(AuthConfiguration authConfiguration, HandlerExecutor executor) {
@@ -33,16 +45,40 @@ public class ChatAuthentication {
 
         response = new AuthorizationResponse();
         timer = new Timer();
+        tokenStorage = new TokenStorageManager(true);
 
         start(executor);
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                tokenStorage.save();
+            } catch (IOException e) {
+                logger.catching(e);
+            }
+        }));
     }
 
 
     private void start(HandlerExecutor executor){
-        requestAuthorization(executor);
+        for(AccessToken a : tokenStorage.getTokens()){
+            try{
+                if(!validateToken(a.getAccessToken())){
+                    System.out.println(STR."Token is not valid \{a.getAccessToken()}");
+                    logger.info("token {} is not valid", a.getAccessToken());
+                    tokenStorage.remove(a);
+                    continue;
+                }
 
-        // TODO: wenn response.IsPending false ist - dann hol den token
-        // Einen timer benutzen zum checken wenn pending false ist
+                response.setAccessToken(a);
+                executor.execute();
+                return;
+            }catch (ClassCastException e){
+                logger.catching(e);
+            }
+
+        }
+
+        requestAuthorization(executor);
 
 
     }
@@ -56,7 +92,7 @@ public class ChatAuthentication {
 
         Javalin app = Javalin.create();
 
-        app.get("/callback", new CallbackHandler(response, authConfig, executor));
+        app.get("/callback", new CallbackHandler(response, authConfig, executor, tokenStorage));
 
         app.start(authConfig.webPort());
 
@@ -68,6 +104,31 @@ public class ChatAuthentication {
 
     public void useRefreshTokenToGetANewAccessToken(){
 
+    }
+
+    private boolean validateToken(String accessToken){
+        HttpGet get = new HttpGet("https://id.twitch.tv/oauth2/validate");
+        ObjectMapper mapper = new ObjectMapper();
+
+        get.setHeader("Authorization", STR."Bearer \{accessToken}");
+
+        try {
+            // Set the entity and execute the post
+            HttpResponse res = HttpClients.createDefault().execute(get);
+
+            String raw = EntityUtils.toString(res.getEntity(), "UTF-8");
+
+            System.out.println(raw); // TODO remove sout entry
+
+            JsonNode node = mapper.readTree(raw);
+            if(node.get("status") == null){
+                return true;
+            }
+        } catch (IOException e) {
+            logger.error("Oops, access token fetching was failed");
+            logger.catching(e);
+        }
+        return false;
     }
 
 }

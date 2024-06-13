@@ -3,6 +3,7 @@ package com.ryifestudios.twitch;
 import com.ryifestudios.twitch.commands.CommandContext;
 import com.ryifestudios.twitch.commands.CommandHandler;
 import com.ryifestudios.twitch.configuration.Configuration;
+import com.ryifestudios.twitch.models.AccessToken;
 import com.ryifestudios.twitch.parser.IRCMessageParser;
 import lombok.Getter;
 import lombok.experimental.Accessors;
@@ -26,11 +27,11 @@ public class WSClient extends org.java_websocket.client.WebSocketClient {
     private final CommandHandler commandHandler;
 
 
-    public WSClient(Configuration configuration, ChatAuthentication authentication, CommandHandler cmdHandler) {
+    public WSClient(Configuration configuration, ChatAuthentication auth, CommandHandler cmdHandler) {
         super(URI.create("ws://irc-ws.chat.twitch.tv:80"));
         this.config = configuration;
-        this.auth = authentication;
         this.commandHandler = cmdHandler;
+        this.auth = auth;
     }
 
     public void connectClient() {
@@ -45,7 +46,7 @@ public class WSClient extends org.java_websocket.client.WebSocketClient {
 
         this.send("CAP REQ :twitch.tv/tags twitch.tv/commands");
         this.send(STR."PASS oauth:\{auth.response().accessToken().getAccessToken()}");
-        this.send(STR."NICK \{auth.authConfig().clientName()}");
+        this.send(STR."NICK \{config.getNick()}");
         this.send(STR."JOIN #\{config.getChannel()}");
 
     }

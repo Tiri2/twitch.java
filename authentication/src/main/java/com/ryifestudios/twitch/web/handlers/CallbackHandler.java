@@ -6,6 +6,8 @@ import com.ryifestudios.twitch.HandlerExecutor;
 import com.ryifestudios.twitch.Utils;
 import com.ryifestudios.twitch.configuration.AuthConfiguration;
 import com.ryifestudios.twitch.models.AccessToken;
+import com.ryifestudios.twitch.storage.StorageManager;
+import com.ryifestudios.twitch.storage.TokenStorageManager;
 import com.ryifestudios.twitch.web.responses.AuthorizationResponse;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
@@ -30,13 +32,15 @@ public class CallbackHandler implements Handler {
 
     private final AuthorizationResponse response;
     private final AuthConfiguration config;
+    private final TokenStorageManager tokenStorage;
 
     private final HandlerExecutor executor;
 
-    public CallbackHandler(AuthorizationResponse r, AuthConfiguration config, HandlerExecutor executor) {
+    public CallbackHandler(AuthorizationResponse r, AuthConfiguration config, HandlerExecutor executor, TokenStorageManager tokenStorage) {
         this.response = r;
         this.config = config;
         this.executor = executor;
+        this.tokenStorage = tokenStorage;
     }
 
     @Override
@@ -78,6 +82,7 @@ public class CallbackHandler implements Handler {
             response.setAccessToken(accessToken);
 
             executor.execute();
+            tokenStorage.add(accessToken);
             logger.info("Successfully fetched access token");
         } catch (IOException e) {
             logger.error("Oops, access token fetching was failed");

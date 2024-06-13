@@ -40,7 +40,7 @@ public class Chat {
         ChatAuthentication authentication = new ChatAuthentication(authConfig, new HandlerExecutor() {
             @Override
             public void execute() {
-                client.connectClient();
+                connectWS();
             }
         });
 
@@ -49,5 +49,8 @@ public class Chat {
 
     }
 
+    private void connectWS(){
+        client.connect();
+    }
 
 }
