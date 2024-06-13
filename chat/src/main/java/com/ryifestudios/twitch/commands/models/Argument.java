@@ -15,4 +15,8 @@ public class Argument {
     private String description;
     private Object value;
 
+    @Override
+    public String toString() {
+        return value.toString();
+    }
 }

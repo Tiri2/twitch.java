@@ -1,5 +1,6 @@
 package com.ryifestudios.twitch;
 
+import com.ryifestudios.twitch.commands.CommandContext;
 import com.ryifestudios.twitch.commands.CommandHandler;
 import com.ryifestudios.twitch.configuration.Configuration;
 import com.ryifestudios.twitch.parser.IRCMessageParser;
@@ -42,6 +43,7 @@ public class WSClient extends org.java_websocket.client.WebSocketClient {
 
         System.out.println("Websocket Client connected");
 
+        this.send("CAP REQ :twitch.tv/tags twitch.tv/commands");
         this.send(STR."PASS oauth:\{auth.response().accessToken().getAccessToken()}");
         this.send(STR."NICK \{auth.authConfig().clientName()}");
         this.send(STR."JOIN #\{config.getChannel()}");
@@ -61,9 +63,9 @@ public class WSClient extends org.java_websocket.client.WebSocketClient {
             System.out.println(parsedMessage);
 
             if (parsedMessage != null) {
-                switch (parsedMessage.getCommand().getCommand()) {
+                switch (parsedMessage.getCommand().getMethod()) {
                     case "PRIVMSG":
-                        commandHandler.execute(parsedMessage.getCommand().getBotCommand(), "", null, this);
+                        commandHandler.execute(parsedMessage.getCommand().getBotCommand(), parsedMessage.getCommand().getBotCommandParams(), new CommandContext(this, parsedMessage.getTags()));
                         break;
                     case "PING":
                         this.send(STR."PONG \{parsedMessage.getParameters()}");

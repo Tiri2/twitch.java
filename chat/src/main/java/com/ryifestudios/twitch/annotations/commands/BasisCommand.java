@@ -10,4 +10,6 @@ import java.lang.reflect.Type;
 @Target(ElementType.METHOD)
 public @interface BasisCommand {
 
+    ArgumentAno[] arguments() default {};
+
 }
