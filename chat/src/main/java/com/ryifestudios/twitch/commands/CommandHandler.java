@@ -165,7 +165,7 @@ public class CommandHandler {
         if(args.length == 0){
             BasisCommand basisCommand = cmd.getBasisMethod().getAnnotation(BasisCommand.class);
             if(basisCommand.arguments().length >= 1){
-                ctx.reply(STR."\{basisCommand.arguments().length} Arguments are missing.");
+                ctx.reply(STR."\{basisCommand.arguments().length} Argument(s) are missing."); // Todo fire event instead send hard coded message
             }
             return;
         }
@@ -203,27 +203,19 @@ public class CommandHandler {
         BasisCommand basisCommand = cmd.getBasisMethod().getAnnotation(BasisCommand.class);
 
         Argument[] arguments = new Argument[basisCommand.arguments().length];
-        System.out.println(Arrays.toString(basisCommand.arguments()));
 
         for (int i = 0; i < basisCommand.arguments().length; i++) {
             ArgumentAno ano = basisCommand.arguments()[i];
-            System.out.println(ano.name());
-
             Argument arg = new Argument();
             arg.setValue(args[i]);
             arg.setName(ano.name());
             arg.setDescription(ano.description());
-
             arguments[i] = arg;
         }
 
         try{
-            System.out.println(Arrays.toString(arguments));
-            System.out.println(arguments.length);
-
             cmd.getBasisMethod().invoke(o, ctx, arguments);
         }catch (IllegalArgumentException e){
-            ctx.send(e.getMessage());
             logger.catching(e);
         }
     }
