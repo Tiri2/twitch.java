@@ -1,14 +1,20 @@
 package com.ryifestudios.twitch.parser;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.*;
 
 public class IRCMessageParser {
 
+    @Getter
+    @Setter
     public static class ParsedMessage {
-        public Map<String, Object> tags;
-        public Source source;
-        public Command command;
-        public String parameters;
+
+        private Map<String, Object> tags;
+        private Source source;
+        private Command command;
+        private String parameters;
 
         public ParsedMessage() {
             this.tags = null;
@@ -16,24 +22,38 @@ public class IRCMessageParser {
             this.command = null;
             this.parameters = null;
         }
+
+        @Override
+        public String toString() {
+            return STR."ParsedMessage{tags=\{tags}, source=\{source}, command=\{command}, parameters='\{parameters}'}";
+        }
     }
 
+    @Getter
+    @Setter
     public static class Source {
-        public String nick;
-        public String host;
+        private String nick;
+        private String host;
 
         public Source(String nick, String host) {
             this.nick = nick;
             this.host = host;
         }
+
+        @Override
+        public String toString() {
+            return STR."Source{nick='\{nick}', host='\{host}'}";
+        }
     }
 
+    @Getter
+    @Setter
     public static class Command {
-        public String command;
-        public String channel;
-        public Boolean isCapRequestEnabled;
-        public String botCommand;
-        public String botCommandParams;
+        private String command;
+        private String channel;
+        private Boolean isCapRequestEnabled;
+        private String botCommand;
+        private String botCommandParams;
 
         public Command() {
             this.command = null;
@@ -42,8 +62,18 @@ public class IRCMessageParser {
             this.botCommand = null;
             this.botCommandParams = null;
         }
+
+        @Override
+        public String toString() {
+            return STR."Command{command='\{command}', channel='\{channel}', isCapRequestEnabled=\{isCapRequestEnabled}, botCommand='\{botCommand}', botCommandParams='\{botCommandParams}'}";
+        }
     }
 
+    /**
+     * Parse a websocket message to the object
+     * @param message
+     * @return
+     */
     public static ParsedMessage parseMessage(String message) {
         ParsedMessage parsedMessage = new ParsedMessage();
 
@@ -51,7 +81,6 @@ public class IRCMessageParser {
 
         String rawTagsComponent = null;
         String rawSourceComponent = null;
-        String rawCommandComponent = null;
         String rawParametersComponent = null;
 
         if (message.charAt(idx) == '@') {
@@ -72,16 +101,17 @@ public class IRCMessageParser {
             endIdx = message.length();
         }
 
-        rawCommandComponent = message.substring(idx, endIdx).trim();
+        String rawCommandComponent = message.substring(idx, endIdx).trim();
 
         if (endIdx != message.length()) {
             idx = endIdx + 1;
             rawParametersComponent = message.substring(idx);
         }
 
-        parsedMessage.command = parseCommand(rawCommandComponent);
+        parsedMessage.setCommand(parseCommand(rawCommandComponent));
 
         if (parsedMessage.command == null) {
+            System.out.println("DEBUG: return null");
             return null;
         } else {
             if (rawTagsComponent != null) {
