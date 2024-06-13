@@ -17,6 +17,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
+/**
+ * Everything about commands
+ */
 public class CommandHandler {
 
     Logger logger = LogManager.getLogger("commandHandler");
@@ -42,7 +45,7 @@ public class CommandHandler {
 
             // Create the command object to set the data and save it in the list
             Command cmd = new Command();
-            LinkedList<SubCommand> subCommands = new LinkedList<>();
+            HashMap<String, SubCommand> subCommands = new HashMap<>();
 
             // set important infos
             com.ryifestudios.twitch.annotations.commands.Command commandAnnotation = c.getAnnotation(com.ryifestudios.twitch.annotations.commands.Command.class);
@@ -119,9 +122,8 @@ public class CommandHandler {
                     arguments.add(arg);
                 }
 
-
                 subCmd.setArguments(arguments);
-                subCommands.add(subCmd);
+                subCommands.put(subCmd.getName(), subCmd);
 
             });
 
@@ -137,30 +139,93 @@ public class CommandHandler {
      *
      *
      * If not subCommand with this name found, then handle this as it's a argument
-     * @param commandName
-     * @param subCommandName
-     * @param args
+     * @param commandName command that were executed
+     * @param args args for the command
      */
-    public void execute(String commandName, String subCommandName, String[] args, WSClient ws){
+    public void execute(String commandName, String[] args, CommandContext ctx){
+        if(commandName == null) return;
+
         Command cmd = commands.get(commandName);
+
         Object o;
+
+        if(cmd == null){
+            ctx.send(STR."Command \{commandName} not found");
+            return;
+        }
 
         // Init the object to execute
         try {
             o = cmd.getClazz().getConstructor().newInstance();
         } catch (NoSuchMethodException | InstantiationException | InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException(e); // TODO: better error handling
+        }
+
+        // If no args or subcommand is entered, invoke the basis method
+        if(args.length == 0){
+            BasisCommand basisCommand = cmd.getBasisMethod().getAnnotation(BasisCommand.class);
+            if(basisCommand.arguments().length >= 1){
+                ctx.reply(STR."\{basisCommand.arguments().length} Arguments are missing.");
+            }
+            return;
+        }
+
+        // get the sub command based on arg[0]
+        SubCommand subCmd = cmd.getSubCommands().get(args[0]);
+
+        // if no sub cmd found, execute the basis method with parameters
+        if(subCmd == null){
+            try {
+                executeBasisMethod(cmd, args, o, ctx);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException(e); // TODO: better error handling
+            }
+
+            return;
+        }
+
+        // Set the values of the arguments based on the array args
+        for (int i = 1; i < subCmd.getArguments().size(); i++) {
+            Argument arg = subCmd.getArguments().get(i);
+            arg.setValue(args[i]);
+            subCmd.getArguments().set(i, arg);
+        }
+
+        try {
+            subCmd.getMethod().invoke(o, ctx, subCmd.getArguments());
+        } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
 
-        // If no subcommand is entered, invoke the basis method
-        if(subCommandName.isBlank()){
-            try {
-                cmd.getBasisMethod().invoke(o, new CommandContext(ws));
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
+    }
+
+    private void executeBasisMethod(Command cmd, String[] args, Object o, CommandContext ctx) throws InvocationTargetException, IllegalAccessException {
+        BasisCommand basisCommand = cmd.getBasisMethod().getAnnotation(BasisCommand.class);
+
+        Argument[] arguments = new Argument[basisCommand.arguments().length];
+        System.out.println(Arrays.toString(basisCommand.arguments()));
+
+        for (int i = 0; i < basisCommand.arguments().length; i++) {
+            ArgumentAno ano = basisCommand.arguments()[i];
+            System.out.println(ano.name());
+
+            Argument arg = new Argument();
+            arg.setValue(args[i]);
+            arg.setName(ano.name());
+            arg.setDescription(ano.description());
+
+            arguments[i] = arg;
         }
 
+        try{
+            System.out.println(Arrays.toString(arguments));
+            System.out.println(arguments.length);
+
+            cmd.getBasisMethod().invoke(o, ctx, arguments);
+        }catch (IllegalArgumentException e){
+            ctx.send(e.getMessage());
+            logger.catching(e);
+        }
     }
 
 

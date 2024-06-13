@@ -6,20 +6,24 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.LinkedList;
 
 @Getter
 @Setter
 @AllArgsConstructor
-@NoArgsConstructor
 public class Command {
 
     private String name;
     private String description;
     private Method basisMethod;
-    private LinkedList<SubCommand> subCommands;
+    private HashMap<String, SubCommand> subCommands;
 
     private Class<?> clazz;
+
+    public Command() {
+        subCommands = new HashMap<>();
+    }
 
     @Override
     public String toString() {

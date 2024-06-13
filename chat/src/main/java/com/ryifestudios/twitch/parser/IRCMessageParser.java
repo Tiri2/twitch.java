@@ -49,23 +49,23 @@ public class IRCMessageParser {
     @Getter
     @Setter
     public static class Command {
-        private String command;
+        private String method;
         private String channel;
         private Boolean isCapRequestEnabled;
         private String botCommand;
-        private String botCommandParams;
+        private String[] botCommandParams;
 
         public Command() {
-            this.command = null;
+            this.method = null;
             this.channel = null;
             this.isCapRequestEnabled = null;
             this.botCommand = null;
-            this.botCommandParams = null;
+            this.botCommandParams = new String[0];
         }
 
         @Override
         public String toString() {
-            return STR."Command{command='\{command}', channel='\{channel}', isCapRequestEnabled=\{isCapRequestEnabled}, botCommand='\{botCommand}', botCommandParams='\{botCommandParams}'}";
+            return STR."Command{method='\{method}', channel='\{channel}', isCapRequestEnabled=\{isCapRequestEnabled}, botCommand='\{botCommand}', botCommandParams='\{Arrays.toString(botCommandParams)}'}";
         }
     }
 
@@ -194,39 +194,43 @@ public class IRCMessageParser {
         Command parsedCommand = new Command();
         String[] commandParts = rawCommandComponent.split(" ");
 
-        switch (commandParts[0]) {
-            case "PRIVMSG", "001", "GLOBALUSERSTATE", "USERSTATE", "ROOMSTATE", "HOSTTARGET", "CLEARCHAT", "NOTICE", "PART", "JOIN":
-                parsedCommand.command = commandParts[0];
-                parsedCommand.channel = commandParts[1];
-                break;
-            case "PING":
-                parsedCommand.command = commandParts[0];
-                break;
-            case "CAP":
-                parsedCommand.command = commandParts[0];
-                parsedCommand.isCapRequestEnabled = "ACK".equals(commandParts[2]);
-                break;
+        try {
+            switch (commandParts[0]) {
+                case "PRIVMSG", "001", "GLOBALUSERSTATE", "USERSTATE", "ROOMSTATE", "HOSTTARGET", "CLEARCHAT", "NOTICE",
+                     "PART", "JOIN":
+                    parsedCommand.method = commandParts[0];
+                    parsedCommand.channel = commandParts[1];
+                    break;
+                case "PING":
+                    parsedCommand.method = commandParts[0];
+                    break;
+                case "CAP":
+                    parsedCommand.method = commandParts[0];
+                    parsedCommand.isCapRequestEnabled = "ACK".equals(commandParts[2]);
+                    break;
 
-            case "RECONNECT":
-                System.out.println("The Twitch IRC server is about to terminate the connection for maintenance.");
-                parsedCommand.command = commandParts[0];
-                break;
-            case "421":
-                System.out.println(STR."Unsupported IRC command: \{commandParts[2]}");
-                return null;
-            case "002":
-            case "003":
-            case "004":
-            case "353":
-            case "366":
-            case "372":
-            case "375":
-            case "376":
-                System.out.println(STR."numeric message: \{commandParts[0]}");
-                return null;
-            default:
-                System.out.println(STR."\nUnexpected command: \{commandParts[0]}\n");
-                return null;
+                case "RECONNECT":
+                    System.out.println("The Twitch IRC server is about to terminate the connection for maintenance.");
+                    parsedCommand.method = commandParts[0];
+                    break;
+                case "421":
+                    System.out.println(STR."Unsupported IRC command: \{commandParts[2]}");
+                    return null;
+                case "002":
+                case "003":
+                case "004":
+                case "353":
+                case "366":
+                case "372":
+                case "375":
+                case "376":
+                    System.out.println(STR."numeric message: \{commandParts[0]}");
+                    return null;
+                default:
+                    System.out.println(STR."\nUnexpected command: \{commandParts[0]}\n");
+                    return null;
+            }
+        }catch (ArrayIndexOutOfBoundsException ignored){
         }
 
         return parsedCommand;
@@ -249,7 +253,7 @@ public class IRCMessageParser {
             command.botCommand = commandParts;
         } else {
             command.botCommand = commandParts.substring(0, paramsIdx);
-            command.botCommandParams = commandParts.substring(paramsIdx).trim();
+            command.botCommandParams = commandParts.substring(paramsIdx).trim().split(" ");
         }
 
         return command;

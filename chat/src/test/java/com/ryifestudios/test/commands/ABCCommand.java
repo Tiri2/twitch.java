@@ -13,6 +13,6 @@ public class ABCCommand  {
     public void call(CommandContext ctx){
         System.out.println("called");
 
-        ctx.send();
+        ctx.reply("abc command called");
     }
 }
