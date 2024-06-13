@@ -1,5 +1,6 @@
 package com.ryifestudios.twitch.commands;
 
+import com.ryifestudios.twitch.WSClient;
 import com.ryifestudios.twitch.annotations.commands.ArgumentAno;
 import com.ryifestudios.twitch.annotations.commands.BasisCommand;
 import com.ryifestudios.twitch.commands.models.Argument;
@@ -140,7 +141,7 @@ public class CommandHandler {
      * @param subCommandName
      * @param args
      */
-    public void execute(String commandName, String subCommandName, String[] args){
+    public void execute(String commandName, String subCommandName, String[] args, WSClient ws){
         Command cmd = commands.get(commandName);
         Object o;
 
@@ -154,7 +155,7 @@ public class CommandHandler {
         // If no subcommand is entered, invoke the basis method
         if(subCommandName.isBlank()){
             try {
-                cmd.getBasisMethod().invoke(o, new CommandContext());
+                cmd.getBasisMethod().invoke(o, new CommandContext(ws));
             } catch (IllegalAccessException | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
