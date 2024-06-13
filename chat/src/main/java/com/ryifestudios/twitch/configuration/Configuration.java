@@ -1,12 +1,15 @@
 package com.ryifestudios.twitch.configuration;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Setter
 @Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Configuration {
 
     private String channel;
+    private String nick;
 
 }
