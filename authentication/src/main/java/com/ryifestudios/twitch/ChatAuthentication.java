@@ -1,7 +1,6 @@
 package com.ryifestudios.twitch;
 
 import com.ryifestudios.twitch.configuration.AuthConfiguration;
-import com.ryifestudios.twitch.tasks.RequestAccessToken;
 import com.ryifestudios.twitch.web.handlers.CallbackHandler;
 import com.ryifestudios.twitch.web.responses.AuthorizationResponse;
 import io.javalin.Javalin;
@@ -12,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Timer;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import static java.lang.StringTemplate.STR;
 
@@ -28,27 +28,26 @@ public class ChatAuthentication {
 
     private final Timer timer;
 
-    public ChatAuthentication(AuthConfiguration authConfiguration, int webPort) {
+    public ChatAuthentication(AuthConfiguration authConfiguration, HandlerExecutor executor) {
         this.authConfig = authConfiguration;
 
         response = new AuthorizationResponse();
         timer = new Timer();
 
-        start(webPort);
+        start(executor);
     }
 
 
-    private void start(int port){
-        requestAuthorization(port);
+    private void start(HandlerExecutor executor){
+        requestAuthorization(executor);
 
         // TODO: wenn response.IsPending false ist - dann hol den token
         // Einen timer benutzen zum checken wenn pending false ist
 
-        timer.scheduleAtFixedRate(new RequestAccessToken(response, authConfig), 0, TimeUnit.SECONDS.toMillis(5));
 
     }
 
-    public void requestAuthorization(int port){
+    public void requestAuthorization(HandlerExecutor executor){
 
         String url = STR."https://id.twitch.tv/oauth2/authorize?response_type=code&client_id=\{authConfig.clientId()}&redirect_uri=\{authConfig.redirectUri()}&scope=\{authConfig.scopes()}\n";
 
@@ -57,9 +56,9 @@ public class ChatAuthentication {
 
         Javalin app = Javalin.create();
 
-        app.get("/callback", new CallbackHandler(response));
+        app.get("/callback", new CallbackHandler(response, authConfig, executor));
 
-        app.start(port);
+        app.start(authConfig.webPort());
 
     }
 

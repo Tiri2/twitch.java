@@ -17,13 +17,10 @@ public class Main {
                 .redirectUri("http://localhost:1000/callback")
                 .clientSecret("3dcwh6gub60althyaxs1x3dkisogg0") // 12.6 15:40
                 .clientName("ryifebot")
+                .webPort(1000)
                 .scopes(new ChatScopesBuilder().withChatRead().withChatEdit().withChannelModerate().build()).build();
 
-        ChatAuthentication chatAuth = new ChatAuthentication(authConfiguration, 1000);
-
-        Chat chat = new Chat(configuration, chatAuth);
-
-
+        Chat chat = new Chat(configuration, authConfiguration);
     }
 
 }
