@@ -6,6 +6,7 @@ import com.ryifestudios.twitch.configuration.Configuration;
 import com.ryifestudios.twitch.models.AccessToken;
 import com.ryifestudios.twitch.parser.IRCMessageParser;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,16 +23,16 @@ public class WSClient extends org.java_websocket.client.WebSocketClient {
     @Accessors(fluent = true)
     private final Configuration config;
 
-    private final ChatAuthentication auth;
+    @Setter
+    private ChatAuthentication auth;
 
     private final CommandHandler commandHandler;
 
 
-    public WSClient(Configuration configuration, ChatAuthentication auth, CommandHandler cmdHandler) {
+    public WSClient(Configuration configuration, CommandHandler cmdHandler) {
         super(URI.create("ws://irc-ws.chat.twitch.tv:80"));
         this.config = configuration;
         this.commandHandler = cmdHandler;
-        this.auth = auth;
     }
 
     public void connectClient() {

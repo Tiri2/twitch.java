@@ -37,20 +37,13 @@ public class Chat {
 
         this.commandHandler = new CommandHandler();
 
-        ChatAuthentication authentication = new ChatAuthentication(authConfig, new HandlerExecutor() {
-            @Override
-            public void execute() {
-                connectWS();
-            }
-        });
-
         timer = new Timer();
-        client = new WSClient(config, authentication, commandHandler);
+        client = new WSClient(config, commandHandler);
 
-    }
+        ChatAuthentication authentication = new ChatAuthentication(authConfig, client::connect);
 
-    private void connectWS(){
-        client.connect();
+        client.setAuth(authentication);
+
     }
 
 }
