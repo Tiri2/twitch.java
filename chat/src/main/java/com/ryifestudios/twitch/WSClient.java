@@ -3,6 +3,7 @@ package com.ryifestudios.twitch;
 import com.ryifestudios.twitch.commands.CommandContext;
 import com.ryifestudios.twitch.commands.CommandHandler;
 import com.ryifestudios.twitch.configuration.Configuration;
+import com.ryifestudios.twitch.exceptions.ArgumentException;
 import com.ryifestudios.twitch.models.AccessToken;
 import com.ryifestudios.twitch.parser.IRCMessageParser;
 import lombok.Getter;
@@ -54,7 +55,6 @@ public class WSClient extends org.java_websocket.client.WebSocketClient {
 
     @Override
     public void onMessage(String ircMessage) {
-        System.out.println(STR."ircMessage: \{ircMessage}");
 
         String rawIrcMessage = ircMessage.trim();
         System.out.println(STR."Message received (\{new Date()}): '\{rawIrcMessage}'\n");
@@ -62,12 +62,16 @@ public class WSClient extends org.java_websocket.client.WebSocketClient {
         String[] messages = rawIrcMessage.split("\r\n"); // The IRC message may contain one or more messages.
         for (String message : messages) {
             IRCMessageParser.ParsedMessage parsedMessage = IRCMessageParser.parseMessage(message);
-            System.out.println(parsedMessage);
 
             if (parsedMessage != null) {
                 switch (parsedMessage.getCommand().getMethod()) {
                     case "PRIVMSG":
-                        commandHandler.execute(parsedMessage.getCommand().getBotCommand(), parsedMessage.getCommand().getBotCommandParams(), new CommandContext(this, parsedMessage.getTags()));
+                        try {
+                            commandHandler.execute(parsedMessage.getCommand().getBotCommand(), parsedMessage.getCommand().getBotCommandParams(), new CommandContext(this, parsedMessage.getTags()));
+                        } catch (ArgumentException e) {
+                            logger.catching(e);
+                            return;
+                        }
                         break;
                     case "PING":
                         this.send(STR."PONG \{parsedMessage.getParameters()}");
@@ -77,7 +81,10 @@ public class WSClient extends org.java_websocket.client.WebSocketClient {
                         break;
                     case "JOIN":
 //                            this.send("PRIVMSG " + config.getChannel() + " :" + moveMessage);
-                        this.send(STR."PRIVMSG #\{config.getChannel()} :Channel joint");
+//                        this.send(STR."PRIVMSG #\{config.getChannel()} :Channel joint");
+
+                        System.out.println("Mit dem Chat verbunden");
+                        logger.info(STR."joined chat for \{config.getChannel()}");
 
                         break;
                     case "PART":
