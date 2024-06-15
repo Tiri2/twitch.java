@@ -185,7 +185,7 @@ public class CommandHandler {
         }
 
         // If no args or subcommand is entered, invoke the basis method
-        if(args.length == 0){
+        if(args.length == 0 || args[0].isBlank()){
             BasisCommand basisCommand = cmd.getBasisMethod().getAnnotation(BasisCommand.class);
             if(basisCommand.arguments().length >= 1){
                 ctx.reply(STR."\{basisCommand.arguments().length} Argument(s) are missing."); // Todo fire event instead send hard coded message
@@ -246,16 +246,24 @@ public class CommandHandler {
 
         Argument[] arguments = new Argument[basisCommand.arguments().length];
 
+        System.out.println(basisCommand.arguments().length);
+
         for (int i = 0; i < basisCommand.arguments().length; i++) {
             ArgumentAno ano = basisCommand.arguments()[i];
             Argument arg = new Argument();
-            arg.setValue(args[i]);
+            arg.setValue(args[i + 1]);
             arg.setName(ano.name());
             arg.setDescription(ano.description());
             arguments[i] = arg;
         }
 
         try{
+
+            // If no args entered, then execute it without args
+            if(arguments.length == 0 || args[0].isBlank())
+                cmd.getBasisMethod().invoke(o, ctx);
+
+            // args entered, execute it with args
             cmd.getBasisMethod().invoke(o, ctx, arguments);
         }
         catch (IllegalArgumentException e){

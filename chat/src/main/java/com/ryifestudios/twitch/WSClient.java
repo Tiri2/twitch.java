@@ -61,6 +61,7 @@ public class WSClient extends org.java_websocket.client.WebSocketClient {
         String[] messages = rawIrcMessage.split("\r\n"); // The IRC message may contain one or more messages.
         for (String message : messages) {
             IRCMessageParser.ParsedMessage parsedMessage = IRCMessageParser.parseMessage(message);
+            System.out.println(STR."Parsed Message: \{parsedMessage}");
 
             if (parsedMessage != null) {
                 switch (parsedMessage.getCommand().getMethod()) {
