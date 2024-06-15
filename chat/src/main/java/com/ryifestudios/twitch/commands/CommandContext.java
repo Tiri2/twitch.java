@@ -36,7 +36,7 @@ public class CommandContext {
      * @param text text to response
      */
     public void reply(String text){
-        client.send(STR."@reply-parent-msg-id=\{tags.get("id")} PRIVMSG #\{client.config().getChannel()} :\{text}!");
+        client.send(STR."@reply-parent-msg-id=\{tags.get("id")} PRIVMSG #\{client.config().getChannel()} :\{text}");
     }
 
     public User getUser(){
