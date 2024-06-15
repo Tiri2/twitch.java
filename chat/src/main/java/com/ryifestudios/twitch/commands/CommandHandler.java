@@ -1,6 +1,5 @@
 package com.ryifestudios.twitch.commands;
 
-import com.ryifestudios.twitch.WSClient;
 import com.ryifestudios.twitch.annotations.commands.ArgumentAno;
 import com.ryifestudios.twitch.annotations.commands.BasisCommand;
 import com.ryifestudios.twitch.commands.models.Argument;

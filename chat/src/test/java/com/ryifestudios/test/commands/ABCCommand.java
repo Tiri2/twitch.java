@@ -5,7 +5,6 @@ import com.ryifestudios.twitch.annotations.commands.Command;
 import com.ryifestudios.twitch.annotations.commands.SubCommand;
 import com.ryifestudios.twitch.commands.CommandContext;
 
-import java.lang.annotation.Annotation;
 
 @Command(name = "abc", description = "fortnite")
 public class ABCCommand  {
