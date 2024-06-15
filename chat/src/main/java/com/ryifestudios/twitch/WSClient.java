@@ -4,7 +4,6 @@ import com.ryifestudios.twitch.commands.CommandContext;
 import com.ryifestudios.twitch.commands.CommandHandler;
 import com.ryifestudios.twitch.configuration.Configuration;
 import com.ryifestudios.twitch.exceptions.ArgumentException;
-import com.ryifestudios.twitch.models.AccessToken;
 import com.ryifestudios.twitch.parser.IRCMessageParser;
 import lombok.Getter;
 import lombok.Setter;
