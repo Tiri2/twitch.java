@@ -7,7 +7,6 @@ import com.ryifestudios.twitch.configuration.Configuration;
 import lombok.Getter;
 
 import java.util.Timer;
-import java.util.concurrent.TimeUnit;
 
 /**
  *
