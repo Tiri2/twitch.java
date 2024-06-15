@@ -39,8 +39,15 @@ public class CommandContext {
         client.send(STR."@reply-parent-msg-id=\{tags.get("id")} PRIVMSG #\{client.config().getChannel()} :\{text}");
     }
 
+    /**
+     * Get a user to display his personal infos like display name, if he is mod and so on
+     * @return
+     */
     public User getUser(){
-        return new User();
+        return new User(Integer.parseInt(tags.get("user-id").toString()), tags.get("display-name").toString(), tags.get("color").toString(),
+                Boolean.parseBoolean(tags.get("mod").toString()),
+                Boolean.parseBoolean(tags.get("subscriber").toString()), Boolean.parseBoolean(tags.get("turbo").toString()),
+                Integer.parseInt(tags.get("room-id").toString()), Boolean.parseBoolean(tags.get("first-msg").toString()));
     }
 
 }
