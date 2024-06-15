@@ -25,7 +25,7 @@ public class CommandContext {
 
     /**
      * Send a message to the twitch chat
-     * @param text
+     * @param text the message to send
      */
     public void send(String text){
         client.send(STR."PRIVMSG #\{client.config().getChannel()} :\{text}");
