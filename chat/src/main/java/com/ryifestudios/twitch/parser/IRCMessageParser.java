@@ -111,7 +111,6 @@ public class IRCMessageParser {
         parsedMessage.setCommand(parseCommand(rawCommandComponent));
 
         if (parsedMessage.command == null) {
-            System.out.println("DEBUG: return null");
             return null;
         } else {
             if (rawTagsComponent != null) {
@@ -224,7 +223,7 @@ public class IRCMessageParser {
                 case "372":
                 case "375":
                 case "376":
-                    System.out.println(STR."numeric message: \{commandParts[0]}");
+//                    System.out.println(STR."numeric message: \{commandParts[0]}");
                     return null;
                 default:
                     System.out.println(STR."\nUnexpected command: \{commandParts[0]}\n");
