@@ -71,8 +71,8 @@ public class IRCMessageParser {
 
     /**
      * Parse a websocket message to the object
-     * @param message
-     * @return
+     * @param message message to parse
+     * @return parsed message object
      */
     public static ParsedMessage parseMessage(String message) {
         ParsedMessage parsedMessage = new ParsedMessage();
