@@ -90,11 +90,10 @@ public class ChatAuthentication {
 
                     a.setAccessToken(r.get("access_token").asText());
                     a.setRefreshToken(r.get("refresh_token").asText());
+                    a.setExpiresIn(r.get("expires_in").asInt());
                     logger.info("refreshing access token was successful! Use new access token");
                 }
 
-                // ik it's ugly
-                if(node != null) a.setExpiresIn(node.get("expires_in").asInt());
 
                 accessToken = a;
                 executor.execute();
