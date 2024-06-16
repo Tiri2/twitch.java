@@ -2,6 +2,7 @@ package com.ryifestudios.twitch.web.handlers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ryifestudios.twitch.ChatAuthentication;
 import com.ryifestudios.twitch.HandlerExecutor;
 import com.ryifestudios.twitch.Utils;
 import com.ryifestudios.twitch.configuration.AuthConfiguration;
@@ -30,14 +31,14 @@ public class CallbackHandler implements Handler {
 
     private final Logger logger = LogManager.getLogger();
 
-    private final AuthorizationResponse response;
+    private ChatAuthentication chatAuthentication;
     private final AuthConfiguration config;
     private final TokenStorageManager tokenStorage;
 
     private final HandlerExecutor executor;
 
-    public CallbackHandler(AuthorizationResponse r, AuthConfiguration config, HandlerExecutor executor, TokenStorageManager tokenStorage) {
-        this.response = r;
+    public CallbackHandler(ChatAuthentication c, AuthConfiguration config, HandlerExecutor executor, TokenStorageManager tokenStorage) {
+        this.chatAuthentication = c;
         this.config = config;
         this.executor = executor;
         this.tokenStorage = tokenStorage;
@@ -51,13 +52,12 @@ public class CallbackHandler implements Handler {
         ObjectMapper mapper = new ObjectMapper();
         List<NameValuePair> params = new ArrayList<>();
 
-        response.setAuthorizedCode(context.queryParam("code"));
         logger.info("Code for authentication got");
 
         // Set the form params for the post
         params.add(new BasicNameValuePair("client_id", config.clientId()));
         params.add(new BasicNameValuePair("client_secret", config.clientSecret()));
-        params.add(new BasicNameValuePair("code", response.getAuthorizedCode()));
+        params.add(new BasicNameValuePair("code", context.queryParam("code")));
         params.add(new BasicNameValuePair("grant_type", "authorization_code"));
         params.add(new BasicNameValuePair("redirect_uri", config.redirectUri()));
 
@@ -79,7 +79,7 @@ public class CallbackHandler implements Handler {
             accessToken.setExpiresIn(node.get("expires_in").asInt());
             accessToken.setTokenType(node.get("token_type").asText());
             accessToken.setScopes(Utils.stringToArrayList(node.get("scope").asText()));
-            response.setAccessToken(accessToken);
+            chatAuthentication.accessToken(accessToken);
 
             executor.execute();
             tokenStorage.add(accessToken);
