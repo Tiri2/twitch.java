@@ -58,7 +58,7 @@ public class WSClient extends org.java_websocket.client.WebSocketClient {
                 switch (parsedMessage.getCommand().getMethod()) {
                     case "PRIVMSG":
                         try {
-                            commandHandler.execute(parsedMessage.getCommand().getBotCommand(), parsedMessage.getCommand().getBotCommandParams(), new CommandContext(this, parsedMessage.getTags()));
+                            commandHandler.execute(new CommandContext(this, parsedMessage.getTags()), parsedMessage.getCommand().getBotCommand(), parsedMessage.getCommand().getBotCommandParams());
                         } catch (ArgumentException e) {
                             logger.catching(e);
                             return;

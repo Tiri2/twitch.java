@@ -46,8 +46,8 @@ public class Chat {
      * @param authConfig which is used to store the required data like client Id or client Secret
      */
     public Chat(Configuration config, AuthConfiguration authConfig) {
-        this.commandHandler = new CommandHandler();
         this.eventHandler = new EventHandler();
+        this.commandHandler = new CommandHandler(eventHandler);
 
         timer = new Timer();
         client = new WSClient(config, commandHandler);
