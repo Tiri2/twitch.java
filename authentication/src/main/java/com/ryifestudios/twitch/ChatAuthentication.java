@@ -67,6 +67,7 @@ public class ChatAuthentication {
 
 
     private void start(HandlerExecutor executor){
+        // Logic for checking if a access token is valid reusing them instead of reauthenticate each time
         for(AccessToken a : tokenStorage.getTokens()){
             try{
                 JsonNode node = validateToken(a.getAccessToken());
@@ -106,8 +107,8 @@ public class ChatAuthentication {
 
         requestAuthorization(executor);
 
-        timer.scheduleAtFixedRate(new GetNewAccessToken(), 0, TimeUnit.MILLISECONDS.convert(1, TimeUnit.MINUTES));
-
+        timer.scheduleAtFixedRate(new GetNewAccessToken(this), 0, TimeUnit.MILLISECONDS.convert(1, TimeUnit.MINUTES));
+        logger.info("start finished");
     }
 
     private void requestAuthorization(HandlerExecutor executor){
@@ -127,11 +128,11 @@ public class ChatAuthentication {
 
 
     /**
-     * Used to check if the specific access token is valid or not
+     * Check if the specific access token is valid or not
      * @param accessToken access token to check
      * @return if the access token is valid
      */
-    private JsonNode validateToken(String accessToken){
+    public JsonNode validateToken(String accessToken){
         HttpGet get = new HttpGet("https://id.twitch.tv/oauth2/validate");
         ObjectMapper mapper = new ObjectMapper();
         get.setHeader("Authorization", STR."Bearer \{accessToken}");
@@ -148,7 +149,12 @@ public class ChatAuthentication {
         }
     }
 
-    private JsonNode requestNewTokenWithRefreshToken(String refreshToken){
+    /**
+     * Get a new Access Token with the refresh token
+     * @param refreshToken refresh token for getting a new access token
+     * @return new fetched access token
+     */
+    public JsonNode requestNewTokenWithRefreshToken(String refreshToken){
         try {
             HttpPost post = new HttpPost("https://id.twitch.tv/oauth2/token");
             ObjectMapper mapper = new ObjectMapper();
