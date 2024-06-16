@@ -4,6 +4,9 @@ import com.ryifestudios.twitch.commands.CommandContext;
 import com.ryifestudios.twitch.events.Event;
 import lombok.Getter;
 
+/**
+ * This event is called, when the connection of the websocket is closed
+ */
 @Getter
 public class WebSocketCloseEvent extends Event {
 
