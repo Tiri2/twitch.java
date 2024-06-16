@@ -13,7 +13,6 @@ import org.apache.logging.log4j.Logger;
 import org.java_websocket.handshake.ServerHandshake;
 
 import java.net.URI;
-import java.util.Date;
 
 public class WSClient extends org.java_websocket.client.WebSocketClient {
 
@@ -35,18 +34,13 @@ public class WSClient extends org.java_websocket.client.WebSocketClient {
         this.commandHandler = cmdHandler;
     }
 
-    public void connectClient() {
-        // Connect to the websocket server
-        this.connect();
-    }
-
     @Override
     public void onOpen(ServerHandshake serverHandshake) {
 
         System.out.println("Websocket Client connected");
 
         this.send("CAP REQ :twitch.tv/tags twitch.tv/commands");
-        this.send(STR."PASS oauth:\{auth.response().accessToken().getAccessToken()}");
+        this.send(STR."PASS oauth:\{auth.accessToken().getAccessToken()}");
         this.send(STR."NICK \{config.getNick()}");
         this.send(STR."JOIN #\{config.getChannel()}");
 
@@ -54,10 +48,7 @@ public class WSClient extends org.java_websocket.client.WebSocketClient {
 
     @Override
     public void onMessage(String ircMessage) {
-
         String rawIrcMessage = ircMessage.trim();
-        System.out.println(STR."Message received (\{new Date()}): '\{rawIrcMessage}'\n");
-
         String[] messages = rawIrcMessage.split("\r\n"); // The IRC message may contain one or more messages.
         for (String message : messages) {
             IRCMessageParser.ParsedMessage parsedMessage = IRCMessageParser.parseMessage(message);
@@ -74,6 +65,7 @@ public class WSClient extends org.java_websocket.client.WebSocketClient {
                         }
                         break;
                     case "PING":
+                        System.out.println("ping pong"); // TODO: remove sout
                         this.send(STR."PONG \{parsedMessage.getParameters()}");
                         break;
                     case "001":
