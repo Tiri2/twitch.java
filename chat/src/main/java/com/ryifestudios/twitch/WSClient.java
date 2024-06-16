@@ -65,7 +65,7 @@ public class WSClient extends org.java_websocket.client.WebSocketClient {
                         }
                         break;
                     case "PING":
-                        System.out.println("ping pong"); // TODO: remove sout
+                        logger.info("pinged");
                         this.send(STR."PONG \{parsedMessage.getParameters()}");
                         break;
                     case "001":
