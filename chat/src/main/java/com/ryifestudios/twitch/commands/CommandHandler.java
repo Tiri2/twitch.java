@@ -39,14 +39,9 @@ public class CommandHandler {
     private void findAllCommands(){
         Reflections typesAnnotatedRef = new Reflections(new ConfigurationBuilder().setUrls(ClasspathHelper.forJavaClassPath()).setScanners(Scanners.TypesAnnotated));
 
-
         Set<Class<?>> cmds = typesAnnotatedRef.getTypesAnnotatedWith(com.ryifestudios.twitch.annotations.commands.Command.class);
 
-
         cmds.forEach(c -> {
-
-
-
             // Create the command object to set the data and save it in the list
             Command cmd = new Command();
             HashMap<String, SubCommand> subCommands = new HashMap<>();
@@ -56,7 +51,6 @@ public class CommandHandler {
             cmd.setName(commandAnnotation.name());
             cmd.setDescription(commandAnnotation.description());
             cmd.setClazz(c);
-
 
             /*
             ##########################################
