@@ -21,8 +21,6 @@ public class GetCommands implements Handler {
 
         JSONArray commands = new JSONArray();
 
-        System.out.println(commandHandler.commands());
-
         commandHandler.commands().forEach((name, cmd) -> {
             JSONObject js = new JSONObject();
             js.put("name", name);
@@ -50,10 +48,8 @@ public class GetCommands implements Handler {
 
             js.put("subCommands", subCmds);
             commands.put(js);
-            System.out.println(js);
         });
 
-        System.out.println(commands);
 
         context.json(commands.toString());
 
