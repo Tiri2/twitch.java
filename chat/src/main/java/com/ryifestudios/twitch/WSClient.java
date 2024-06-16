@@ -3,7 +3,14 @@ package com.ryifestudios.twitch;
 import com.ryifestudios.twitch.commands.CommandContext;
 import com.ryifestudios.twitch.commands.CommandHandler;
 import com.ryifestudios.twitch.configuration.Configuration;
-import com.ryifestudios.twitch.exceptions.ArgumentException;
+import com.ryifestudios.twitch.events.EventHandler;
+import com.ryifestudios.twitch.events.impl.irc.MessageEvent;
+import com.ryifestudios.twitch.events.impl.irc.NoticeEvent;
+import com.ryifestudios.twitch.events.impl.irc.PartEvent;
+import com.ryifestudios.twitch.events.impl.irc.PingEvent;
+import com.ryifestudios.twitch.events.impl.websocket.WebSocketCloseEvent;
+import com.ryifestudios.twitch.events.impl.websocket.WebSocketConnectedEvent;
+import com.ryifestudios.twitch.events.impl.websocket.WebSocketErrorEvent;
 import com.ryifestudios.twitch.parser.IRCMessageParser;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,6 +20,7 @@ import org.apache.logging.log4j.Logger;
 import org.java_websocket.handshake.ServerHandshake;
 
 import java.net.URI;
+import java.util.HashMap;
 
 public class WSClient extends org.java_websocket.client.WebSocketClient {
 
@@ -26,12 +34,14 @@ public class WSClient extends org.java_websocket.client.WebSocketClient {
     private ChatAuthentication auth;
 
     private final CommandHandler commandHandler;
+    private final EventHandler eventHandler;
 
 
-    public WSClient(Configuration configuration, CommandHandler cmdHandler) {
+    public WSClient(Configuration configuration, CommandHandler cmdHandler, EventHandler eventHandler) {
         super(URI.create("ws://irc-ws.chat.twitch.tv:80"));
         this.config = configuration;
         this.commandHandler = cmdHandler;
+        this.eventHandler = eventHandler;
     }
 
     @Override
@@ -44,6 +54,8 @@ public class WSClient extends org.java_websocket.client.WebSocketClient {
         this.send(STR."JOIN #\{config.getChannel()}");
 
         logger.info("sent pass, nick and join message to the server");
+
+        eventHandler.callEvent(new WebSocketConnectedEvent(serverHandshake));
     }
 
     @Override
@@ -57,9 +69,16 @@ public class WSClient extends org.java_websocket.client.WebSocketClient {
             if (parsedMessage != null) {
                 switch (parsedMessage.getCommand().getMethod()) {
                     case "PRIVMSG":
-                        commandHandler.execute(new CommandContext(this, parsedMessage.getTags()), parsedMessage.getCommand().getBotCommand(), parsedMessage.getCommand().getBotCommandParams());
+
+                        // If a command is entered in chat, execute it in command handler
+                        if(parsedMessage.getCommand().getBotCommand() != null)
+                            commandHandler.execute(new CommandContext(this, parsedMessage.getTags()), parsedMessage.getCommand().getBotCommand(), parsedMessage.getCommand().getBotCommandParams());
+
+                        // call message event
+                        eventHandler.callEvent(new MessageEvent(new CommandContext(this, parsedMessage.getTags()), parsedMessage.getParameters()));
                         break;
                     case "PING":
+                        eventHandler.callEvent(new PingEvent(new CommandContext(this, parsedMessage.getTags()), parsedMessage));
                         logger.info("pinged");
                         this.send(STR."PONG \{parsedMessage.getParameters()}");
                         break;
@@ -75,10 +94,14 @@ public class WSClient extends org.java_websocket.client.WebSocketClient {
 
                         break;
                     case "PART":
+                        eventHandler.callEvent(new PartEvent(new CommandContext(this, parsedMessage.getTags()), parsedMessage));
+
                         System.out.println("The channel must have banned (/ban) the bot.");
                         this.close();
                         break;
                     case "NOTICE":
+                        eventHandler.callEvent(new NoticeEvent(new CommandContext(this, parsedMessage.getTags()), parsedMessage));
+
                         if ("Login authentication failed".equals(parsedMessage.getParameters())) {
                             System.out.println(STR."Authentication failed; left \{config.getChannel()}");
 
@@ -101,13 +124,14 @@ public class WSClient extends org.java_websocket.client.WebSocketClient {
 
     @Override
     public void onClose(int i, String s, boolean b) {
-        System.out.println("Disconnected");
-        System.out.println(STR."i=\{i}, s=\{s} b=\{b}");
-        // TODO impl reconnection
+        eventHandler.callEvent(new WebSocketCloseEvent(new CommandContext(this, new HashMap<>()), i, s, b));
+        this.reconnect();
     }
 
     @Override
     public void onError(Exception e) {
+        eventHandler.callEvent(new WebSocketErrorEvent(new CommandContext(this, new HashMap<>()), e));
         logger.catching(e);
     }
+
 }

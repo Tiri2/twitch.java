@@ -6,9 +6,9 @@ import com.ryifestudios.twitch.commands.models.Argument;
 import com.ryifestudios.twitch.commands.models.Command;
 import com.ryifestudios.twitch.commands.models.SubCommand;
 import com.ryifestudios.twitch.events.EventHandler;
-import com.ryifestudios.twitch.events.impl.CommandError;
-import com.ryifestudios.twitch.events.impl.CommandExecuted;
-import com.ryifestudios.twitch.events.impl.CommandNotFound;
+import com.ryifestudios.twitch.events.impl.commands.CommandErrorEvent;
+import com.ryifestudios.twitch.events.impl.commands.CommandExecutedEvent;
+import com.ryifestudios.twitch.events.impl.commands.CommandNotFoundEvent;
 import com.ryifestudios.twitch.exceptions.ArgumentException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -172,7 +172,7 @@ public class CommandHandler {
         Object instance;
 
         if(cmd == null){
-            eh.callEvent(new CommandNotFound(ctx, commandName, args));
+            eh.callEvent(new CommandNotFoundEvent(ctx, commandName, args));
             return;
         }
 
@@ -182,7 +182,7 @@ public class CommandHandler {
         try {
             instance = cmd.getClazz().getConstructor().newInstance();
         } catch (NoSuchMethodException | InstantiationException | InvocationTargetException | IllegalAccessException e) {
-            eh.callEvent(new CommandError(ctx, cmd, args, basisCommand, CommandError.Reason.INSTANCE_CREATION_ERROR));
+            eh.callEvent(new CommandErrorEvent(ctx, cmd, args, basisCommand, CommandErrorEvent.Reason.INSTANCE_CREATION_ERROR));
             logger.catching(e);
             return;
         }
@@ -191,12 +191,12 @@ public class CommandHandler {
         if(args.length == 0 || args[0].isBlank()){
             if(basisCommand.arguments().length >= 1){
                 ctx.reply(STR."\{basisCommand.arguments().length} Argument(s) are missing.");
-                eh.callEvent(new CommandError(ctx, cmd, args, basisCommand, CommandError.Reason.ARGS_MISSING));
+                eh.callEvent(new CommandErrorEvent(ctx, cmd, args, basisCommand, CommandErrorEvent.Reason.ARGS_MISSING));
             }else{
                 try {
                     executeBasisMethod(cmd, args, instance, ctx);
                 } catch (InvocationTargetException | IllegalAccessException | ArgumentException e) {
-                    eh.callEvent(new CommandError(ctx, cmd, args, basisCommand, CommandError.Reason.EXECUTE_BASISMETHOD));
+                    eh.callEvent(new CommandErrorEvent(ctx, cmd, args, basisCommand, CommandErrorEvent.Reason.EXECUTE_BASISMETHOD));
                 }
             }
             return;
@@ -210,7 +210,7 @@ public class CommandHandler {
             try {
                 executeBasisMethod(cmd, args, instance, ctx);
             } catch (IllegalAccessException | InvocationTargetException | ArgumentException e) {
-                eh.callEvent(new CommandError(ctx, cmd, args, basisCommand, CommandError.Reason.EXECUTE_BASISMETHOD));
+                eh.callEvent(new CommandErrorEvent(ctx, cmd, args, basisCommand, CommandErrorEvent.Reason.EXECUTE_BASISMETHOD));
             }
 
             return;
@@ -221,7 +221,7 @@ public class CommandHandler {
         // Check if the arguments size of the sub cmd is bigger than the actual args in the message (-1 because sub cmd is in this array)
         if(subCmd.getArguments().size() > args.length - 1){
             ctx.reply(STR."\{subCmd.getArguments().size() - (args.length - 1)} Arguments are missing");
-            eh.callEvent(new CommandError(ctx, cmd, args, basisCommand, CommandError.Reason.ARGS_MISSING_OF_SUBCMD));
+            eh.callEvent(new CommandErrorEvent(ctx, cmd, args, basisCommand, CommandErrorEvent.Reason.ARGS_MISSING_OF_SUBCMD));
             return;
         }
 
@@ -236,10 +236,10 @@ public class CommandHandler {
             subCmd.getMethod().invoke(instance, ctx, getArgs(subCmd.getArguments()));
         }
         catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException e) {
-            eh.callEvent(new CommandError(ctx, cmd, args, basisCommand, CommandError.Reason.EXECUTE_SUBCMD));
+            eh.callEvent(new CommandErrorEvent(ctx, cmd, args, basisCommand, CommandErrorEvent.Reason.EXECUTE_SUBCMD));
         }
 
-        eh.callEvent(new CommandExecuted(ctx, cmd, args));
+        eh.callEvent(new CommandExecutedEvent(ctx, cmd, args));
     }
 
     private Argument[] getArgs(LinkedList<Argument> args){
