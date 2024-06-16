@@ -1,7 +1,6 @@
 package com.ryifestudios.test;
 
 import com.ryifestudios.twitch.Chat;
-import com.ryifestudios.twitch.ChatAuthentication;
 import com.ryifestudios.twitch.configuration.AuthConfiguration;
 import com.ryifestudios.twitch.configuration.Configuration;
 import com.ryifestudios.twitch.scopes.ChatScopesBuilder;
