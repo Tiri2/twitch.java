@@ -32,10 +32,12 @@ public class CommandContext {
         this.client = client;
         this.tags = tags;
 
-        user = new User(Integer.parseInt(tags.get("user-id").toString()), tags.get("display-name").toString(), tags.get("color").toString(),
+        if(tags != null)
+            user = new User(Integer.parseInt(tags.get("user-id").toString()), tags.get("display-name").toString(), tags.get("color").toString(),
                 Boolean.parseBoolean(tags.get("mod").toString()),
                 Boolean.parseBoolean(tags.get("subscriber").toString()), Boolean.parseBoolean(tags.get("turbo").toString()),
                 Integer.parseInt(tags.get("room-id").toString()), Boolean.parseBoolean(tags.get("first-msg").toString()));
+        else user = null;
 
     }
 
