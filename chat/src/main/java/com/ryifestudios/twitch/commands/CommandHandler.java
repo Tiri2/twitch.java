@@ -168,12 +168,13 @@ public class CommandHandler {
     public void execute(String commandName, String[] args, CommandContext ctx) throws ArgumentException {
         if(commandName == null) return;
 
+
         Command cmd = commands.get(commandName);
 
         Object instance;
 
         if(cmd == null){
-            ctx.send(STR."Command \{commandName} not found");
+            ctx.send(STR."Command \{commandName} not found"); // TODO: execute event
             return;
         }
 
@@ -189,6 +190,12 @@ public class CommandHandler {
             BasisCommand basisCommand = cmd.getBasisMethod().getAnnotation(BasisCommand.class);
             if(basisCommand.arguments().length >= 1){
                 ctx.reply(STR."\{basisCommand.arguments().length} Argument(s) are missing."); // Todo fire event instead send hard coded message
+            }else{
+                try {
+                    executeBasisMethod(cmd, args, instance, ctx);
+                } catch (InvocationTargetException | IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
             }
             return;
         }
@@ -258,7 +265,6 @@ public class CommandHandler {
         }
 
         try{
-
             // If no args entered, then execute it without args
             if(arguments.length == 0 || args[0].isBlank())
                 cmd.getBasisMethod().invoke(o, ctx);

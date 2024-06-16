@@ -10,9 +10,8 @@ public class DEFCommand {
 
     @BasisCommand()
     public void test(CommandContext ctx){
-        System.out.println("generate user");
         User u = ctx.getUser();
-        System.out.println("user generated");
+        System.out.println("def called");
 
         ctx.reply(STR."@\{u.getDisplayName()} has entered giveaway");
     }
