@@ -1,18 +1,22 @@
 package com.ryifestudios.twitch.events;
 
+import com.ryifestudios.twitch.commands.CommandContext;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+
+
+@AllArgsConstructor
 public abstract class Event {
 
-    private String id;
-    private String description;
+    private CommandContext commandContext;
 
-    public abstract void execute();
+    @Setter
+    @Getter
+    private boolean canceled;
 
-
-    public String getId() {
-        return id;
+    public CommandContext ctx(){
+        return commandContext;
     }
 
-    public String getDescription() {
-        return description;
-    }
 }

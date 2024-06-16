@@ -5,6 +5,10 @@ import com.ryifestudios.twitch.annotations.commands.BasisCommand;
 import com.ryifestudios.twitch.commands.models.Argument;
 import com.ryifestudios.twitch.commands.models.Command;
 import com.ryifestudios.twitch.commands.models.SubCommand;
+import com.ryifestudios.twitch.events.EventHandler;
+import com.ryifestudios.twitch.events.impl.CommandError;
+import com.ryifestudios.twitch.events.impl.CommandExecuted;
+import com.ryifestudios.twitch.events.impl.CommandNotFound;
 import com.ryifestudios.twitch.exceptions.ArgumentException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,7 +31,11 @@ public class CommandHandler {
 
     private final HashMap<String, Command> commands;
 
-    public CommandHandler() {
+    private final EventHandler eh;
+
+    public CommandHandler(EventHandler eventHandler) {
+        this.eh = eventHandler;
+
         commands = new HashMap<>();
 
         findAllCommands();
@@ -75,12 +83,9 @@ public class CommandHandler {
                 logger.warn("You have two Methods with {} annotated - using {}", BasisCommand.class.getName(), basisMethod.toGenericString());
             }
 
-            // TODO: maybe thrown a exception for logger.error things
-
-            // Check if the params are higher than 1 TODO: improve params
+            // Check if the params are higher than 1
             if(basisMethod.getParameterCount() < 1){
                 logger.error("Method {} don't have enough parameters. Is CommandContext missing?", basisMethod.toGenericString());
-                System.out.println("error - 0 params");
                 return;
             }
 
@@ -116,10 +121,9 @@ public class CommandHandler {
                 subCmd.setName(subAno.name());
                 subCmd.setDescription(subAno.description());
 
-                // Check if the params are higher than 1 TODO: improve params
+                // Check if the params are higher than 1
                 if(sub.getParameterCount() < 1){
-                    logger.error("Method {} don't have enough parameters. Is CommandContext missing?", sub.toGenericString());
-                    System.out.println("error - 0 params");
+                    logger.error("SubCommand Method {} don't have enough parameters. Is CommandContext missing?", sub.toGenericString());
                     return;
                 }
 
@@ -159,7 +163,7 @@ public class CommandHandler {
      * @param commandName command that were executed
      * @param args args for the command
      */
-    public void execute(String commandName, String[] args, CommandContext ctx) throws ArgumentException {
+    public void execute(CommandContext ctx, String commandName, String[] args) throws ArgumentException {
         if(commandName == null) return;
 
 
@@ -168,27 +172,31 @@ public class CommandHandler {
         Object instance;
 
         if(cmd == null){
-            ctx.send(STR."Command \{commandName} not found"); // TODO: execute event
+            eh.callEvent(new CommandNotFound(ctx, commandName, args));
             return;
         }
+
+        BasisCommand basisCommand = cmd.getBasisMethod().getAnnotation(BasisCommand.class);
 
         // Init the object to execute
         try {
             instance = cmd.getClazz().getConstructor().newInstance();
         } catch (NoSuchMethodException | InstantiationException | InvocationTargetException | IllegalAccessException e) {
-            throw new RuntimeException(e); // TODO: better error handling
+            eh.callEvent(new CommandError(ctx, cmd, args, basisCommand, CommandError.Reason.INSTANCE_CREATION_ERROR));
+            logger.catching(e);
+            return;
         }
 
         // If no args or subcommand is entered, invoke the basis method
         if(args.length == 0 || args[0].isBlank()){
-            BasisCommand basisCommand = cmd.getBasisMethod().getAnnotation(BasisCommand.class);
             if(basisCommand.arguments().length >= 1){
-                ctx.reply(STR."\{basisCommand.arguments().length} Argument(s) are missing."); // Todo fire event instead send hard coded message
+                ctx.reply(STR."\{basisCommand.arguments().length} Argument(s) are missing.");
+                eh.callEvent(new CommandError(ctx, cmd, args, basisCommand, CommandError.Reason.ARGS_MISSING));
             }else{
                 try {
                     executeBasisMethod(cmd, args, instance, ctx);
                 } catch (InvocationTargetException | IllegalAccessException e) {
-                    throw new RuntimeException(e);
+                    eh.callEvent(new CommandError(ctx, cmd, args, basisCommand, CommandError.Reason.EXECUTE_BASISMETHOD));
                 }
             }
             return;
@@ -202,7 +210,7 @@ public class CommandHandler {
             try {
                 executeBasisMethod(cmd, args, instance, ctx);
             } catch (IllegalAccessException | InvocationTargetException e) {
-                throw new RuntimeException(e); // TODO: better error handling
+                eh.callEvent(new CommandError(ctx, cmd, args, basisCommand, CommandError.Reason.EXECUTE_BASISMETHOD));
             }
 
             return;
@@ -213,6 +221,7 @@ public class CommandHandler {
         // Check if the arguments size of the sub cmd is bigger than the actual args in the message (-1 because sub cmd is in this array)
         if(subCmd.getArguments().size() > args.length - 1){
             ctx.reply(STR."\{subCmd.getArguments().size() - (args.length - 1)} Arguments are missing");
+            eh.callEvent(new CommandError(ctx, cmd, args, basisCommand, CommandError.Reason.ARGS_MISSING_OF_SUBCMD));
             return;
         }
 
@@ -226,12 +235,13 @@ public class CommandHandler {
         try {
             subCmd.getMethod().invoke(instance, ctx, getArgs(subCmd.getArguments()));
         } catch (IllegalArgumentException e){
-            throw new ArgumentException(e.getMessage());
+            throw new ArgumentException(e);
         }
         catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+            eh.callEvent(new CommandError(ctx, cmd, args, basisCommand, CommandError.Reason.EXECUTE_SUBCMD));
         }
 
+        eh.callEvent(new CommandExecuted(ctx, cmd, args));
     }
 
     private Argument[] getArgs(LinkedList<Argument> args){
