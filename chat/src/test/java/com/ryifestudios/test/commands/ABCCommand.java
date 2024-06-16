@@ -13,11 +13,19 @@ public class ABCCommand  {
     public void call(CommandContext ctx){
         System.out.println("called");
 
-        ctx.reply("abc command called");
+        ctx.send("abc command called");
     }
 
     @SubCommand(name = "tel")
-    public void tel(){
+    public void tel(CommandContext ctx){
         System.out.println("tel");
+        ctx.send(STR."Ich liebe @\{ctx.getUser().getDisplayName()}");
     }
+
+    @SubCommand(name="shutdown")
+    public void shutdown(CommandContext ctx){
+        ctx.reply("ok");
+        System.exit(1000);
+    }
+
 }
