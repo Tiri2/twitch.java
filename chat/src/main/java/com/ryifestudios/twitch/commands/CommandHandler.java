@@ -251,7 +251,7 @@ public class CommandHandler {
         for (int i = 0; i < basisCommand.arguments().length; i++) {
             ArgumentAno ano = basisCommand.arguments()[i];
             Argument arg = new Argument();
-            arg.setValue(args[i + 1]);
+            arg.setValue(args[i]);
             arg.setName(ano.name());
             arg.setDescription(ano.description());
             arguments[i] = arg;
