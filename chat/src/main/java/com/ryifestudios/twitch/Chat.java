@@ -50,7 +50,7 @@ public class Chat {
         this.commandHandler = new CommandHandler(eventHandler);
 
         timer = new Timer();
-        client = new WSClient(config, commandHandler);
+        client = new WSClient(config, commandHandler, eventHandler);
 
         ChatAuthentication authentication = new ChatAuthentication(authConfig, client::connect);
 
