@@ -36,14 +36,14 @@ public class WSClient extends org.java_websocket.client.WebSocketClient {
 
     @Override
     public void onOpen(ServerHandshake serverHandshake) {
-
-        System.out.println("Websocket Client connected");
+        logger.info("websocket client started");
 
         this.send("CAP REQ :twitch.tv/tags twitch.tv/commands");
         this.send(STR."PASS oauth:\{auth.accessToken().getAccessToken()}");
         this.send(STR."NICK \{config.getNick()}");
         this.send(STR."JOIN #\{config.getChannel()}");
 
+        logger.info("sent pass, nick and join message to the server");
     }
 
     @Override
@@ -52,7 +52,7 @@ public class WSClient extends org.java_websocket.client.WebSocketClient {
         String[] messages = rawIrcMessage.split("\r\n"); // The IRC message may contain one or more messages.
         for (String message : messages) {
             IRCMessageParser.ParsedMessage parsedMessage = IRCMessageParser.parseMessage(message);
-            System.out.println(STR."Parsed Message: \{parsedMessage}");
+            logger.debug(STR."Parsed Message: \{parsedMessage}");
 
             if (parsedMessage != null) {
                 switch (parsedMessage.getCommand().getMethod()) {
