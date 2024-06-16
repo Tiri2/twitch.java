@@ -57,12 +57,7 @@ public class WSClient extends org.java_websocket.client.WebSocketClient {
             if (parsedMessage != null) {
                 switch (parsedMessage.getCommand().getMethod()) {
                     case "PRIVMSG":
-                        try {
-                            commandHandler.execute(new CommandContext(this, parsedMessage.getTags()), parsedMessage.getCommand().getBotCommand(), parsedMessage.getCommand().getBotCommandParams());
-                        } catch (ArgumentException e) {
-                            logger.catching(e);
-                            return;
-                        }
+                        commandHandler.execute(new CommandContext(this, parsedMessage.getTags()), parsedMessage.getCommand().getBotCommand(), parsedMessage.getCommand().getBotCommandParams());
                         break;
                     case "PING":
                         logger.info("pinged");

@@ -163,7 +163,7 @@ public class CommandHandler {
      * @param commandName command that were executed
      * @param args args for the command
      */
-    public void execute(CommandContext ctx, String commandName, String[] args) throws ArgumentException {
+    public void execute(CommandContext ctx, String commandName, String[] args) {
         if(commandName == null) return;
 
 
@@ -195,7 +195,7 @@ public class CommandHandler {
             }else{
                 try {
                     executeBasisMethod(cmd, args, instance, ctx);
-                } catch (InvocationTargetException | IllegalAccessException e) {
+                } catch (InvocationTargetException | IllegalAccessException | ArgumentException e) {
                     eh.callEvent(new CommandError(ctx, cmd, args, basisCommand, CommandError.Reason.EXECUTE_BASISMETHOD));
                 }
             }
@@ -209,7 +209,7 @@ public class CommandHandler {
         if(subCmd == null){
             try {
                 executeBasisMethod(cmd, args, instance, ctx);
-            } catch (IllegalAccessException | InvocationTargetException e) {
+            } catch (IllegalAccessException | InvocationTargetException | ArgumentException e) {
                 eh.callEvent(new CommandError(ctx, cmd, args, basisCommand, CommandError.Reason.EXECUTE_BASISMETHOD));
             }
 
@@ -234,10 +234,8 @@ public class CommandHandler {
 
         try {
             subCmd.getMethod().invoke(instance, ctx, getArgs(subCmd.getArguments()));
-        } catch (IllegalArgumentException e){
-            throw new ArgumentException(e);
         }
-        catch (IllegalAccessException | InvocationTargetException e) {
+        catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException e) {
             eh.callEvent(new CommandError(ctx, cmd, args, basisCommand, CommandError.Reason.EXECUTE_SUBCMD));
         }
 
