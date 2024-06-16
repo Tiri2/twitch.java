@@ -15,9 +15,7 @@ public class CommandContext {
     private final Map<String, Object> tags;
 
     /**
-     * -- GETTER --
-     *  Get a user to display his personal infos like display name, if he is mod and so on
-     *
+     * User to display his personal infos like display name. If he is mod and so on
      * @return the user
      */
     @Getter

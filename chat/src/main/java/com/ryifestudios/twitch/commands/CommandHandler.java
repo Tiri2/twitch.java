@@ -157,9 +157,8 @@ public class CommandHandler {
     }
 
     /**
-     *
-     *
-     * If not subCommand with this name found, then handle this as it's a argument
+     * Execute a Command
+     * <p>If not subCommand with this name found, then handle this as it's a argument</p>
      * @param commandName command that were executed
      * @param args args for the command
      */
@@ -279,7 +278,10 @@ public class CommandHandler {
         }
     }
 
-
+    /**
+     * Get all Commands
+     * @return all commands
+     */
     public HashMap<String, Command> commands(){
         return commands;
     }
