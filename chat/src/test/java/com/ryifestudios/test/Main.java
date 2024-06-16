@@ -5,10 +5,26 @@ import com.ryifestudios.twitch.ChatAuthentication;
 import com.ryifestudios.twitch.configuration.AuthConfiguration;
 import com.ryifestudios.twitch.configuration.Configuration;
 import com.ryifestudios.twitch.scopes.ChatScopesBuilder;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.io.File;
 
 public class Main {
 
+    static {
+        File file = new File("log4j2.xml");
+        System.setProperty("log4j2.configurationFile", file.toURI().toString());
+    }
+
+    private static Logger logger;
+
     public static void main(String[] args) {
+
+        logger = LogManager.getLogger();
+
+        logger.info("Hallo welt");
+
         Configuration configuration = new Configuration();
 
         configuration.setChannel("tiri2"); // tiri2 id : no
