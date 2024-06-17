@@ -1,6 +1,8 @@
-.idea
+.idea/*
 
-authentication/target
-chat/target
+/authentication/target
+/chat/target
+/examples/*/target
+/data/
 
 /.idea/
