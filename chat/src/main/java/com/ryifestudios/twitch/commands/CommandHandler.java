@@ -187,17 +187,25 @@ public class CommandHandler {
         }
 
         // If no args or subcommand is entered, invoke the basis method
-        if(args.length == 0 || args[0].isBlank()){
+        if(args.length == 0){
+            // Check if the base has any arguments
             if(basisCommand.arguments().length >= 1){
 //                ctx.reply(STR."\{basisCommand.arguments().length} Argument(s) are missing.");
                 eh.callEvent(new CommandErrorEvent(ctx, cmd, args, basisCommand, CommandErrorEvent.Reason.ARGS_MISSING));
             }else{
                 try {
+                    System.out.println("Execute 1");
                     executeBasisMethod(cmd, args, instance, ctx);
                 } catch (InvocationTargetException | IllegalAccessException | ArgumentException e) {
                     eh.callEvent(new CommandErrorEvent(ctx, cmd, args, basisCommand, CommandErrorEvent.Reason.EXECUTE_BASISMETHOD));
                 }
             }
+            return;
+        }
+
+        if(args[0].isEmpty() || args[0].isBlank()){
+            System.out.println("Execute args 0");
+            eh.callEvent(new CommandErrorEvent(ctx, cmd, args, basisCommand, CommandErrorEvent.Reason.ARGS_MISSING));
             return;
         }
 
@@ -216,7 +224,7 @@ public class CommandHandler {
         }
 
         // Check if the arguments size of the sub cmd is bigger than the actual args in the message (-1 because sub cmd is in this array)
-        if(subCmd.getArguments().size() > args.length - 1){
+        if(subCmd.getArguments().size() > args.length - 1 || args[0].isBlank()){
 //            ctx.reply(STR."\{subCmd.getArguments().size() - (args.length - 1)} Arguments are missing");
             eh.callEvent(new CommandErrorEvent(ctx, cmd, args, basisCommand, CommandErrorEvent.Reason.ARGS_MISSING_OF_SUBCMD));
             return;
