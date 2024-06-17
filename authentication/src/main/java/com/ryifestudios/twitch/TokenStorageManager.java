@@ -1,10 +1,12 @@
-package com.ryifestudios.twitch.storage;
+package com.ryifestudios.twitch;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.ryifestudios.twitch.models.AccessToken;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.util.Arrays;
@@ -12,6 +14,7 @@ import java.util.LinkedList;
 
 public class TokenStorageManager {
 
+    private static final Logger logger = LogManager.getLogger(TokenStorageManager.class);
     private final File dbFile;
     private final File dataFolder;
 
@@ -21,7 +24,7 @@ public class TokenStorageManager {
 
     public TokenStorageManager(boolean loadData) {
         dataFolder = new File("data");
-        dbFile = new File("data", "tokens.json");
+        dbFile = new File(dataFolder, "tokens.json");
 
         if(!dataFolder.exists()){
             dataFolder.mkdir();
@@ -78,10 +81,9 @@ public class TokenStorageManager {
             reader.close();
             AccessToken[] s = mapper.readValue(result, AccessToken[].class);
             tokens.addAll(Arrays.asList(s));
-        }catch (EOFException e){
-            return;
+        }catch (MismatchedInputException | EOFException _){
         }catch (Exception e){
-            throw new IOException(e);
+            logger.catching(e);
         }
 
 
