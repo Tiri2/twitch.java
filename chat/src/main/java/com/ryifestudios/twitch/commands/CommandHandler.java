@@ -215,8 +215,6 @@ public class CommandHandler {
             return;
         }
 
-        System.out.println(STR."subCmd args size: \{subCmd.getArguments().size()} - Arguments: \{args.length}");
-
         // Check if the arguments size of the sub cmd is bigger than the actual args in the message (-1 because sub cmd is in this array)
         if(subCmd.getArguments().size() > args.length - 1){
             ctx.reply(STR."\{subCmd.getArguments().size() - (args.length - 1)} Arguments are missing");

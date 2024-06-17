@@ -86,29 +86,25 @@ public class WSClient extends org.java_websocket.client.WebSocketClient {
                         this.send(STR."JOIN \{config.getChannel()}");
                         break;
                     case "JOIN":
-//                            this.send("PRIVMSG " + config.getChannel() + " :" + moveMessage);
-//                        this.send(STR."PRIVMSG #\{config.getChannel()} :Channel joint");
-
-                        System.out.println("Mit dem Chat verbunden");
+                        System.out.println("Joined chat");
                         logger.info(STR."joined chat for \{config.getChannel()}");
-
                         break;
                     case "PART":
                         eventHandler.callEvent(new PartEvent(new CommandContext(this, parsedMessage.getTags()), parsedMessage));
 
-                        System.out.println("The channel must have banned (/ban) the bot.");
+                        logger.info("The channel must have banned (/ban) the bot.");
                         this.close();
                         break;
                     case "NOTICE":
                         eventHandler.callEvent(new NoticeEvent(new CommandContext(this, parsedMessage.getTags()), parsedMessage));
 
                         if ("Login authentication failed".equals(parsedMessage.getParameters())) {
-                            System.out.println(STR."Authentication failed; left \{config.getChannel()}");
+                            logger.info(STR."Authentication failed; left \{config.getChannel()}");
 
                             this.send(STR."PART \{config.getChannel()}");
 
                         } else if ("You don’t have permission to perform that action".equals(parsedMessage.getParameters())) {
-                            System.out.println(STR."No permission. Check if the access token is still valid. Left \{config.getChannel()}");
+                            logger.info(STR."No permission. Check if the access token is still valid. Left \{config.getChannel()}");
                             send(STR."PART \{config.getChannel()}");
 
                         }
