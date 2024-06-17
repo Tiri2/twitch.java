@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ryifestudios.twitch.configuration.AuthConfiguration;
 import com.ryifestudios.twitch.models.AccessToken;
-import com.ryifestudios.twitch.storage.TokenStorageManager;
 import com.ryifestudios.twitch.tasks.GetNewAccessToken;
 import com.ryifestudios.twitch.web.handlers.CallbackHandler;
 import io.javalin.Javalin;
@@ -82,7 +81,6 @@ public class ChatAuthentication {
                     logger.info("Access token is not valid, use refresh token instead to create a new one");
 
                     if(r == null || r.get("status") != null){
-                        System.out.println(STR."Access Token & refresh Token is not valid \{a.getAccessToken()}");
                         logger.info("Access Token ({}) & refresh Token ({}) is not valid {} is not valid", a.getAccessToken(), a.getRefreshToken());
                         tokenStorage.remove(a);
                         continue;
@@ -167,11 +165,8 @@ public class ChatAuthentication {
 
             HttpResponse response = HttpClients.createDefault().execute(post);
             String raw = EntityUtils.toString(response.getEntity(), "UTF-8");
-            JsonNode node = mapper.readTree(raw);
 
-            System.out.println(STR."RAW: \{raw}\nNode: \{node}");
-
-            return node;
+            return mapper.readTree(raw);
 
         } catch (IOException e) {
             logger.catching(e);

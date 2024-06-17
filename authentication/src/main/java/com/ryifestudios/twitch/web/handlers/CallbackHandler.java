@@ -7,7 +7,7 @@ import com.ryifestudios.twitch.HandlerExecutor;
 import com.ryifestudios.twitch.Utils;
 import com.ryifestudios.twitch.configuration.AuthConfiguration;
 import com.ryifestudios.twitch.models.AccessToken;
-import com.ryifestudios.twitch.storage.TokenStorageManager;
+import com.ryifestudios.twitch.TokenStorageManager;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import org.apache.http.HttpResponse;
