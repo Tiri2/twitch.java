@@ -54,7 +54,7 @@ public class TokenStorageManager {
         }catch (MismatchedInputException e) {
             return;
         } catch (IOException e) {
-            System.out.println(e);
+            logger.catching(e);
         }
     }
 
@@ -85,8 +85,6 @@ public class TokenStorageManager {
         }catch (Exception e){
             logger.catching(e);
         }
-
-
     }
 
     /**
