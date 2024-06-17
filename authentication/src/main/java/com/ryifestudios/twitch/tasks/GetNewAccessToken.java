@@ -23,6 +23,11 @@ public class GetNewAccessToken extends TimerTask {
         logger.debug("GetNewAccessToken is called");
         AccessToken a = auth.accessToken();
 
+        // A could be null
+        if(a == null) {
+            return;
+        }
+
         JsonNode tokenValidNode = auth.validateToken(a.getAccessToken());
 
         if(tokenValidNode != null && tokenValidNode.get("status") == null){
