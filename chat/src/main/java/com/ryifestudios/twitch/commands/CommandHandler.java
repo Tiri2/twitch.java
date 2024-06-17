@@ -189,7 +189,7 @@ public class CommandHandler {
         // If no args or subcommand is entered, invoke the basis method
         if(args.length == 0 || args[0].isBlank()){
             if(basisCommand.arguments().length >= 1){
-                ctx.reply(STR."\{basisCommand.arguments().length} Argument(s) are missing.");
+//                ctx.reply(STR."\{basisCommand.arguments().length} Argument(s) are missing.");
                 eh.callEvent(new CommandErrorEvent(ctx, cmd, args, basisCommand, CommandErrorEvent.Reason.ARGS_MISSING));
             }else{
                 try {
@@ -217,7 +217,7 @@ public class CommandHandler {
 
         // Check if the arguments size of the sub cmd is bigger than the actual args in the message (-1 because sub cmd is in this array)
         if(subCmd.getArguments().size() > args.length - 1){
-            ctx.reply(STR."\{subCmd.getArguments().size() - (args.length - 1)} Arguments are missing");
+//            ctx.reply(STR."\{subCmd.getArguments().size() - (args.length - 1)} Arguments are missing");
             eh.callEvent(new CommandErrorEvent(ctx, cmd, args, basisCommand, CommandErrorEvent.Reason.ARGS_MISSING_OF_SUBCMD));
             return;
         }
@@ -251,8 +251,6 @@ public class CommandHandler {
         BasisCommand basisCommand = cmd.getBasisMethod().getAnnotation(BasisCommand.class);
 
         Argument[] arguments = new Argument[basisCommand.arguments().length];
-
-        System.out.println(basisCommand.arguments().length);
 
         for (int i = 0; i < basisCommand.arguments().length; i++) {
             ArgumentAno ano = basisCommand.arguments()[i];
