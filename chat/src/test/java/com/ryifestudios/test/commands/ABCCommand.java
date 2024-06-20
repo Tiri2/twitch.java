@@ -6,13 +6,11 @@ import com.ryifestudios.twitch.annotations.commands.SubCommand;
 import com.ryifestudios.twitch.commands.CommandContext;
 
 
-@Command(name = "abc", description = "fortnite")
+@Command(name = "abc", description = "THIS IS THE AWESOME ABC COMMAND")
 public class ABCCommand  {
 
     @BasisCommand()
     public void call(CommandContext ctx){
-        System.out.println("called");
-
         ctx.send("abc command called");
     }
 
