@@ -9,14 +9,11 @@ public class Test {
 
     @Event
     public void onCommandError(CommandErrorEvent error){
-//        error.ctx().reply("error concurred");
-        System.out.println("called test onCommandError");
+        error.ctx().reply("error concurred");
     }
 
     @Event
     public void onCommandNotFound(CommandNotFoundEvent c){
-        System.out.println("command not found");
-
         c.ctx().reply(STR."Command \{c.getCommandName()} not found");
     }
 
@@ -24,6 +21,5 @@ public class Test {
     public void executed(CommandExecutedEvent c){
         System.out.println(STR."\{c.getCommand()} executed");
     }
-
 
 }
