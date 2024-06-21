@@ -11,5 +11,6 @@ public @interface Command {
 
     String name();
     String description() default "No description provided";
+    String[] aliases() default {};
 
 }

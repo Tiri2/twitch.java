@@ -30,6 +30,7 @@ public class CommandHandler {
     Logger logger = LogManager.getLogger("commandHandler");
 
     private final HashMap<String, Command> commands;
+    private final HashMap<String, String> aliases;
 
     private final EventHandler eh;
 
@@ -37,6 +38,7 @@ public class CommandHandler {
         this.eh = eventHandler;
 
         commands = new HashMap<>();
+        aliases = new HashMap<>();
 
         findAllCommands();
     }
@@ -59,6 +61,18 @@ public class CommandHandler {
             cmd.setName(commandAnnotation.name());
             cmd.setDescription(commandAnnotation.description());
             cmd.setClazz(c);
+
+            // Fill all aliases of the current command in the hashmap 'aliases'
+            for (String a : commandAnnotation.aliases()){
+
+                // Logic of checking if an alias already exists
+                if(aliases.containsKey(a)){
+                    logger.warn("Alias {} on command {} already exists", a, commandAnnotation.name());
+                    continue;
+                }
+
+                aliases.put(a, commandAnnotation.name());
+            }
 
             /*
             ##########################################
@@ -165,8 +179,10 @@ public class CommandHandler {
     public void execute(CommandContext ctx, String commandName, String[] args) {
         if(commandName == null) return;
 
+        Command cmd;
+        String alias = searchCommandForAliasA(commandName);
 
-        Command cmd = commands.get(commandName);
+        cmd = commands.get(Objects.requireNonNullElse(alias, commandName));
 
         Object instance;
 
@@ -288,5 +304,12 @@ public class CommandHandler {
      */
     public HashMap<String, Command> commands(){
         return commands;
+    }
+
+    private String searchCommandForAliasA(String a){
+        if(aliases.containsKey(a)){
+            return aliases.get(a);
+        }
+        return null;
     }
 }
