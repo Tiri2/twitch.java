@@ -2,7 +2,7 @@
 
 /authentication/target
 /chat/target
-/examples/*/target
+/**/*/target
 /data/
 
 /.idea/
