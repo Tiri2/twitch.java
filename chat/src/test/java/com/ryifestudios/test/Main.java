@@ -31,7 +31,7 @@ public class Main {
         AuthConfiguration authConfiguration = AuthConfiguration.builder()
                 .clientId("r1mln6qcd2m5xvgx4u6wlvgyy33c5u")
                 .redirectUri("http://localhost:1000/callback")
-                .clientSecret("") // 12.6 15:40 // TODO REMOVE THIS!
+                .clientSecret("v11v7x44iujl4w6uop9guy324nah8i") // 12.6 15:40 // TODO REMOVE THIS!
                 .clientName("ryifebot")
                 .webPort(1000)
                 .scopes(new ChatScopesBuilder().withChatRead().withChatEdit().withChannelModerate().build()).build();
