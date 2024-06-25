@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<buildprofiles xsi:noNamespaceSchemaLocation="https://resources.jetbrains.com/writerside/1.0/build-profiles.xsd"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <variables></variables>
+    <build-profile instance="t">
+        <variables>
+            <noindex-content>true</noindex-content>
+            <primary-color>ruby</primary-color>
+        </variables>
+    </build-profile>
+
+    <footer>
+        <copyright>2024 ryifestudios</copyright>
+        <link href="https://github.com/tiri2/twitch.java">Repository</link>
+    </footer>
+</buildprofiles>

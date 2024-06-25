@@ -2,7 +2,9 @@
 
 /authentication/target
 /chat/target
-/**/*/target
+**/*/target
 /data/
 
 /.idea/
+*.iml
+webHelpT2-all.zip

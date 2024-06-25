@@ -1,88 +1,9 @@
-# Twitch.java
-
-Simple implementation of the [twitch api](https://dev.twitch.tv/) in java
-
-## Modules
-
-This repo is divided into several modules.
-
-* [Chat]() [[L](https://dev.twitch.tv/docs/irc/)] - Communicate with the twitch's irc chat
-* [EventSub]() [[L](https://dev.twitch.tv/docs/eventsub/)] - Implementation soon
-* [Authentication]() [[L](https://dev.twitch.tv/docs/authentication/)] - Authenticate with the twitch api
-
-# Install
-
-## Via pom.xml
-
-> Note that freshly published versions may take some time to sync to all other maven repositories.
-
-**Install all modules**
-```
-<properties>
-    <twitch.java.version>{replace this wit current version number}</twitch.java.version>
-</properties>
-
-<dependencies>
-    <dependency>
-        <groupId>com.ryifestudios.twitch</groupId>
-        <artifactId>chat</artifactId>
-        <version>${twitch.java.version}</version>
-    </dependency>
-    <dependency>
-        <groupId>com.ryifestudios.twitch</groupId>
-        <artifactId>authentication</artifactId>
-        <version>${twitch.java.version}</version>
-    </dependency>
-</dependencies>
-```
-
-**Install chat module**
-```
-<dependency>
-    <groupId>com.ryifestudios.twitch</groupId>
-    <artifactId>chat</artifactId>
-    <version>{currentVersion}</version>
-</dependency>
-```
-
-**Install authentication**
-```
-<dependency>
-    <groupId>com.ryifestudios.twitch</groupId>
-    <artifactId>authentication</artifactId>
-    <version>{currentVersion}</version>
-</dependency>
-```
-
-## from Source (unstable deveopment versions)
-
-### Requirements
-
-- git
-- maven
-- java 22
-- installed and configured a primary gpg key
-
-### Installation
-
-```Shell
-git clone https://github.com/Tiri2/twitch.java.git
-cd twitch.java/
-mvn install
-```
-
-# Wiki
-A proper wiki will be written soon. Sorry :/
-A temporary one can be found [here](https://tiri2.github.io/twitch.java)
-
-# Examples
-Here a few examples of creating a command with sub commands and listening on an event
+# Basic Examples
 
 ## Commands
 
-### Basis Method
-
 Here is a small introduction how to make a command called 'coinflip'.
+
 ```java
 import com.ryifestudios.twitch.annotations.commands.*; // Only ArgumentAno, BasisCommand and Command are needed
 import com.ryifestudios.twitch.commands.CommandContext; // CommandContext is used to reply to a command or get information's like user
@@ -124,7 +45,7 @@ public class CoinsflipCommand {
 ### Subcommands
 
 Here is a small introduction to make a command with a sub command¹.
-In this case we have two sub commands, called tel & shutdown. Both Sub Commands have the Annotation 
+In this case we have two sub commands, called tel & shutdown. Both Sub Commands have the Annotation
 `@SubCommand` to declare the method that should be executed.
 
 ¹: Sub Commands are basically under commands of a main command.
@@ -205,5 +126,3 @@ public class Test {
     
 }
 ```
-
-# [Donate me](https://paypal.me/tiri2)
