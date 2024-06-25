@@ -22,6 +22,9 @@ import org.java_websocket.handshake.ServerHandshake;
 import java.net.URI;
 import java.util.HashMap;
 
+/**
+ * This is the most important class, because in here is the websocket handled
+ */
 public class WSClient extends org.java_websocket.client.WebSocketClient {
 
     private final Logger logger = LogManager.getLogger("WS");
