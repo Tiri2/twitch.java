@@ -12,13 +12,28 @@ This repo is divided into several modules.
 
 # Install
 
+## Via pom.xml
+
+> Note that freshly published versions may take some time to sync to all other maven repositories.
+
 **Install all modules**
 ```
-<dependency>
-    <groupId>com.ryifestudios.twitch</groupId>
-    <artifactId>twitch.java</artifactId>
-    <version>{currentVersion}</version>
-</dependency>
+<properties>
+    <twitch.java.version>{replace this wit current version number}</twitch.java.version>
+</properties>
+
+<dependencies>
+    <dependency>
+        <groupId>com.ryifestudios.twitch</groupId>
+        <artifactId>chat</artifactId>
+        <version>${twitch.java.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>com.ryifestudios.twitch</groupId>
+        <artifactId>authentication</artifactId>
+        <version>${twitch.java.version}</version>
+    </dependency>
+</dependencies>
 ```
 
 **Install chat module**
@@ -37,6 +52,23 @@ This repo is divided into several modules.
     <artifactId>authentication</artifactId>
     <version>{currentVersion}</version>
 </dependency>
+```
+
+## from Source (unstable deveopment versions)
+
+### Requirements
+
+- git
+- maven
+- java 22
+- installed and configured a primary gpg key
+
+### Installation
+
+```Shell
+git clone https://github.com/Tiri2/twitch.java.git
+cd twitch.java/
+mvn install
 ```
 
 # Wiki
